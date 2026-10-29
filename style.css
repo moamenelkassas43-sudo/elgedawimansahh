@@ -44,7 +44,7 @@ button{cursor:pointer}
   z-index:-5;
   background-image:
     linear-gradient(110deg,rgba(5,9,17,.91),rgba(6,12,23,.76) 48%,rgba(7,11,20,.91)),
-    url;('https://i.postimg.cc/xTMVt85x/3215b0208f3c54eadd7fc84f052f93b0.jpg'); 
+    url('https://i.postimg.cc/xTMVt85x/3215b0208f3c54eadd7fc84f052f93b0.jpg'); 
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;

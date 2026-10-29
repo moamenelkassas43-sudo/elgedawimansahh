@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1120">
+<meta name="description" content="منصة تاريخ الرقي التعليمية للأستاذ محمد الجداوي">
+<title>منصة تاريخ الرقي | الأستاذ محمد الجداوي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="./style.css">
+<script src="./script.js" defer></script>
+</head>
+<body>
+<div class="background-overlay"></div>
+
+<header class="topbar">
+    <a href="#" class="brand" aria-label="منصة تاريخ الرقي">
+        <div class="brand-icon"><i class="fa-solid fa-landmark"></i></div>
+        <div class="brand-text">
+            <strong>تاريخ الرقي</strong>
+            <span>منصة الأستاذ محمد الجداوي</span>
+        </div>
+    </a>
+    <button class="logout-button hidden" id="logoutButton" type="button">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        تسجيل الخروج
+    </button>
+</header>
+
+<main class="main-container">
+    <section class="welcome-section">
+        <div class="welcome-content">
+            <span class="eyebrow"><i class="fa-solid fa-book-open"></i> رحلة المعرفة تبدأ هنا</span>
+            <h1>التاريخ ليس ماضيًا نقرؤه،<br><span>بل وعيٌ نصنع به المستقبل.</span></h1>
+            <p>أهلًا بك في منصة تاريخ الرقي، حيث نفهم أحداث الماضي ونكتشف أسرار الحضارات مع الأستاذ محمد الجداوي.</p>
+        </div>
+        <div class="teacher-image-wrap">
+            <div class="teacher-frame">
+                <img src="https://i.postimg.cc/j2c4vzD6/IMG-20261028-041451.png" alt="الأستاذ محمد الجداوي" class="teacher-image">
+            </div>
+            <div class="teacher-caption">
+                <span class="caption-line"></span>
+                <div>
+                    <strong>الأستاذ محمد الجداوي</strong>
+                    <small>كبير معلمي التاريخ</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="login-section" id="loginSection">
+        <div class="section-heading">
+            <span class="heading-icon"><i class="fa-solid fa-user-graduate"></i></span>
+            <div>
+                <h2>ابدأ رحلتك التعليمية</h2>
+                <p>أدخل بياناتك للانتقال إلى المنصة.</p>
+            </div>
+        </div>
+
+        <form id="loginForm" autocomplete="on">
+            <div class="form-group">
+                <label for="studentName">اسم الطالب</label>
+                <div class="input-wrap">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" id="studentName" name="studentName" placeholder="اكتب اسمك بالكامل" maxlength="70" required autocomplete="name">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="studentGrade">الصف الدراسي</label>
+                    <div class="select-wrap">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <select id="studentGrade" name="studentGrade" required>
+                            <option value="" selected disabled>اختر الصف الدراسي</option>
+                            <option value="الأول الثانوي">الأول الثانوي</option>
+                            <option value="الثاني الثانوي">الثاني الثانوي</option>
+                            <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا)</option>
+                            <option value="الثالث الثانوي">الثالث الثانوي</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>النوع</label>
+                    <div class="gender-options">
+                        <label class="gender-option">
+                            <input type="radio" name="studentGender" value="male" required>
+                            <span><i class="fa-solid fa-user"></i> طالب</span>
+                        </label>
+                        <label class="gender-option">
+                            <input type="radio" name="studentGender" value="female" required>
+                            <span><i class="fa-solid fa-user"></i> طالبة</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <p class="form-error hidden" id="formError" role="alert"></p>
+
+            <button type="submit" class="submit-button">
+                <span>دخول المنصة</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            <p class="privacy-note">
+                <i class="fa-solid fa-shield-halved"></i>
+                تُحفظ بيانات الدخول على هذا الجهاز لتسهيل عودتك.
+            </p>
+        </form>
+    </section>
+
+    <section class="dashboard-section hidden" id="dashboardSection">
+        <div class="dashboard-welcome">
+            <div class="dashboard-avatar"><i class="fa-solid fa-user-graduate"></i></div>
+            <div>
+                <span class="eyebrow">أهلًا بعودتك</span>
+                <h2 id="dashboardStudentName">مرحبًا بك</h2>
+                <p id="dashboardStudentInfo"></p>
+            </div>
+        </div>
+
+        <div class="dashboard-divider"></div>
+
+        <div class="dashboard-message">
+            <div class="message-icon"><i class="fa-solid fa-book-open"></i></div>
+            <div>
+                <h3>رحلتك مع التاريخ تبدأ من هنا</h3>
+                <p>استعد للتعلم والفهم واكتشاف الأحداث التاريخية بصورة أعمق.</p>
+            </div>
+        </div>
+
+        <div class="dashboard-footer">
+            <i class="fa-solid fa-landmark"></i>
+            <span>منصة تاريخ الرقي</span>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <span>منصة تاريخ الرقي</span>
+    <span class="footer-separator">•</span>
+    <span>الأستاذ محمد الجداوي</span>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

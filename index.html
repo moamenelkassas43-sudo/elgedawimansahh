@@ -2,342 +2,152 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1120">
-<meta name="description" content="منصة تاريخ الرقي التعليمية - الأستاذ محمد الجداوي">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070b18">
 <title>منصة تاريخ الرقي | الأستاذ محمد الجداوي</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="./style.css">
-<script src="./script.js" defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="background-overlay"></div>
+<div id="loading" class="loading"><div class="loader"></div><p>منصة تاريخ الرقي</p></div>
 
+<section id="authScreen" class="auth-screen hidden">
+<div class="auth-card">
+<img class="teacher-logo" src="https://i.postimg.cc/j2c4vzD6/IMG-20261028-041451.png" alt="الأستاذ محمد الجداوي">
+<div class="gold-label">رحلتك نحو التفوق تبدأ هنا</div>
+<h1>منصة تاريخ <span>الرقي</span></h1>
+<p class="muted">الأستاذ محمد الجداوي</p>
+
+<div class="tabs">
+<button class="tab active" data-tab="login">تسجيل الدخول</button>
+<button class="tab" data-tab="register">حساب جديد</button>
+</div>
+
+<form id="phoneForm">
+<label for="phone">رقم الهاتف</label>
+<input id="phone" type="tel" placeholder="01xxxxxxxxx" autocomplete="tel" required>
+<div id="registerFields" class="hidden">
+<label for="studentName">اسم الطالب بالكامل</label>
+<input id="studentName" type="text" placeholder="اكتب اسمك بالكامل" autocomplete="name">
+<label for="grade">الصف الدراسي</label>
+<select id="grade">
+<option value="">اختر الصف الدراسي</option>
+<option>الأول الثانوي</option>
+<option>الثاني الثانوي</option>
+<option>الثاني الثانوي (البكالوريا)</option>
+<option>الثالث الثانوي</option>
+</select>
+<label for="gender">النوع</label>
+<select id="gender">
+<option value="">اختر</option>
+<option value="male">طالب</option>
+<option value="female">طالبة</option>
+</select>
+</div>
+<button class="primary-btn" type="submit" id="authSubmit">متابعة</button>
+<p class="small-note">تسجيل الهاتف الآمن يحتاج إلى تفعيل خدمة التحقق عبر SMS.</p>
+</form>
+<div id="authMessage" class="message" role="status"></div>
+</div>
+</section>
+
+<div id="app" class="app hidden">
+<aside class="sidebar">
+<div class="brand">
+<img src="https://i.postimg.cc/j2c4vzD6/IMG-20261028-041451.png" alt="">
+<div><strong>تاريخ الرقي</strong><small>الأستاذ محمد الجداوي</small></div>
+</div>
+<div class="user-mini"><span class="user-avatar">ط</span><div><strong id="sidebarName">الطالب</strong><small id="sidebarGrade">حساب الطالب</small></div></div>
+<nav class="navigation">
+<button class="nav-btn active" data-page="home"><span>⌂</span> الرئيسية</button>
+<button class="nav-btn" data-page="profile"><span>♙</span> حسابي</button>
+<button class="nav-btn" data-page="lessons"><span>▤</span> الدروس</button>
+<button class="nav-btn" data-page="groups"><span>♧</span> مجموعات الدراسة</button>
+<button class="nav-btn hidden" id="adminNav" data-page="admin"><span>♜</span> لوحة الإدارة</button>
+</nav>
+<div class="sidebar-bottom">
+<a href="https://chat.whatsapp.com/LrNPKu3gZwZD2MFvWQDZ04?s=cl&p=a&mlu=4&ilr=4&iam=2" target="_blank" rel="noopener noreferrer" class="whatsapp-btn">◉ جروب الواتساب</a>
+<button id="soundToggle" class="secondary-btn">🔊 الأصوات: مفعلة</button>
+<button id="logoutBtn" class="logout-btn">↪ تسجيل الخروج</button>
+</div>
+</aside>
+
+<main class="main-content">
 <header class="topbar">
-    <a href="#home" class="brand" aria-label="الرئيسية">
-        <div class="brand-icon"><i class="fa-solid fa-landmark"></i></div>
-        <div class="brand-text">
-            <strong>تاريخ الرقي</strong>
-            <span>منصة الأستاذ محمد الجداوي</span>
-        </div>
-    </a>
-    <div class="header-actions">
-        <span class="status-badge"><span class="status-dot"></span> بوابتك إلى المعرفة</span>
-        <button class="logout-button hidden" id="logoutButton" type="button">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>خروج</span>
-        </button>
-    </div>
+<button id="menuToggle" class="icon-btn" aria-label="فتح القائمة">☰</button>
+<div><span class="gold-label">منصة تعليمية متكاملة</span><h2 id="pageTitle">الرئيسية</h2></div>
+<div class="topbar-badge">✦ <span>التاريخ يصنع المستقبل</span></div>
 </header>
 
-<nav class="main-nav hidden" id="mainNav" aria-label="القائمة الرئيسية">
-    <a href="#home" class="nav-link active" data-section="home">
-        <i class="fa-solid fa-house"></i><span>الرئيسية</span>
-    </a>
-    <a href="#courses" class="nav-link" data-section="courses">
-        <i class="fa-solid fa-book-open"></i><span>المحتوى</span>
-    </a>
-    <a href="#student" class="nav-link" data-section="student">
-        <i class="fa-solid fa-user-graduate"></i><span>لوحة الطالب</span>
-    </a>
-    <a href="#community" class="nav-link" data-section="community">
-        <i class="fa-solid fa-users"></i><span>الجروب</span>
-    </a>
-    <a href="#help" class="nav-link" data-section="help">
-        <i class="fa-regular fa-circle-question"></i><span>المساعدة</span>
-    </a>
-</nav>
+<section class="page active" id="page-home">
+<div class="welcome-card">
+<div class="welcome-content">
+<span class="gold-label">أهلاً بيك في رحلتك التعليمية</span>
+<h1>مرحبًا بك في <span>تاريخ الرقي</span></h1>
+<p>مع الأستاذ محمد الجداوي، المعرفة بداية التميز.</p>
+<button class="primary-btn" data-goto="lessons">استكشف المنصة ←</button>
+</div>
+<img src="https://i.postimg.cc/j2c4vzD6/IMG-20261028-041451.png" alt="الأستاذ محمد الجداوي">
+</div>
+<div class="stats-grid">
+<div class="stat-card"><span>♙</span><p>حالة الحساب</p><strong id="accountStatus">نشط</strong></div>
+<div class="stat-card"><span>▤</span><p>الصف الدراسي</p><strong id="homeGrade">—</strong></div>
+<div class="stat-card"><span>✦</span><p>رسالتنا</p><strong>العلم والتميز</strong></div>
+</div>
+<div class="section-heading"><div><span class="gold-label">ابدأ من هنا</span><h3>أقسام المنصة</h3></div></div>
+<div class="feature-grid">
+<button class="feature-card" data-goto="lessons"><span>▤</span><h3>الدروس التعليمية</h3><p>تابع محتوى المنصة التعليمي.</p><b>استكشف ←</b></button>
+<button class="feature-card" data-goto="profile"><span>♙</span><h3>حسابي الشخصي</h3><p>راجع بيانات حسابك الدراسي.</p><b>عرض الحساب ←</b></button>
+<button class="feature-card" data-goto="groups"><span>♧</span><h3>مجموعات الدراسة</h3><p>رابط مجموعة المنصة على واتساب.</p><b>عرض المجموعة ←</b></button>
+</div>
+</section>
 
-<main class="main-container">
-    <section class="welcome-section" id="home">
-        <div class="welcome-content">
-            <span class="eyebrow"><i class="fa-solid fa-compass"></i> رحلة المعرفة تبدأ هنا</span>
-            <h1>التاريخ ليس ماضيًا نقرؤه،<br><span>بل وعيٌ نصنع به المستقبل.</span></h1>
-            <p>أهلًا بك في منصة تاريخ الرقي، حيث نفهم أحداث الماضي ونكتشف أسرار الحضارات مع الأستاذ محمد الجداوي.</p>
-            <div class="hero-actions">
-                <a href="#courses" class="primary-link" id="heroCoursesLink">
-                    <i class="fa-solid fa-book-open"></i> اكتشف المحتوى
-                </a>
-                <a href="#student" class="secondary-link" id="heroStudentLink">
-                    <i class="fa-regular fa-user"></i> لوحة الطالب
-                </a>
-            </div>
-            <div class="hero-note">
-                <i class="fa-solid fa-quote-right"></i>
-                <span>افهم الماضي، واصنع مستقبلك.</span>
-            </div>
-        </div>
+<section class="page" id="page-profile">
+<div class="panel">
+<span class="gold-label">بياناتك الشخصية</span><h2>حسابي الشخصي</h2>
+<div class="profile-grid">
+<div class="profile-item"><small>الاسم بالكامل</small><strong id="profileName">—</strong></div>
+<div class="profile-item"><small>رقم الهاتف</small><strong id="profilePhone">—</strong></div>
+<div class="profile-item"><small>الصف الدراسي</small><strong id="profileGrade">—</strong></div>
+<div class="profile-item"><small>النوع</small><strong id="profileGender">—</strong></div>
+</div>
+<p class="muted">تعديل البيانات الحساسة يتطلب التحقق من حسابك.</p>
+</div>
+</section>
 
-        <div class="teacher-image-wrap">
-            <div class="image-decoration"></div>
-            <div class="teacher-frame">
-                <img src="https://i.postimg.cc/j2c4vzD6/IMG-20261028-041451.png" alt="الأستاذ محمد الجداوي" class="teacher-image">
-            </div>
-            <div class="teacher-caption">
-                <span class="caption-icon"><i class="fa-solid fa-graduation-cap"></i></span>
-                <div>
-                    <strong>الأستاذ محمد الجداوي</strong>
-                    <small>كبير معلمي التاريخ</small>
-                </div>
-                <i class="fa-solid fa-award caption-award"></i>
-            </div>
-        </div>
-    </section>
+<section class="page" id="page-lessons">
+<div class="panel">
+<span class="gold-label">محتوى المنصة</span><h2>الدروس التعليمية</h2>
+<p class="muted">هنا تقدر تضيف الدروس والملفات التعليمية الخاصة بكل صف.</p>
+<div class="empty-state"><span>▤</span><h3>المحتوى التعليمي</h3><p>لم تتم إضافة دروس حتى الآن.</p></div>
+</div>
+</section>
 
-    <section class="login-section reveal" id="loginSection">
-        <div class="section-heading">
-            <span class="heading-icon"><i class="fa-solid fa-user-graduate"></i></span>
-            <div>
-                <h2>ابدأ رحلتك التعليمية</h2>
-                <p>سجّل بياناتك للدخول إلى واجهة الطالب.</p>
-            </div>
-        </div>
+<section class="page" id="page-groups">
+<div class="panel">
+<span class="gold-label">التواصل والتعلم</span><h2>مجموعات الدراسة</h2>
+<p>انضم إلى مجموعة المنصة لمتابعة المستجدات.</p>
+<a class="primary-btn link-btn" href="https://chat.whatsapp.com/LrNPKu3gZwZD2MFvWQDZ04?s=cl&p=a&mlu=4&ilr=4&iam=2" target="_blank" rel="noopener noreferrer">الانضمام إلى جروب واتساب ↗</a>
+</div>
+</section>
 
-        <form id="loginForm" autocomplete="on">
-            <div class="form-group">
-                <label for="studentName">اسم الطالب</label>
-                <div class="input-wrap">
-                    <i class="fa-regular fa-user"></i>
-                    <input type="text" id="studentName" name="studentName" placeholder="اكتب اسمك بالكامل" maxlength="70" required autocomplete="name">
-                </div>
-            </div>
+<section class="page" id="page-admin">
+<div class="panel">
+<span class="gold-label">منطقة الإدارة</span><h2>لوحة الإدارة</h2>
+<div class="admin-notice">🔐 بيانات الإدارة لا تظهر إلا بعد التحقق من صلاحيات المدير.</div>
+<div class="stats-grid">
+<div class="stat-card"><span>♙</span><p>إجمالي الطلاب</p><strong id="studentCount">—</strong></div>
+<div class="stat-card"><span>✓</span><p>حالة قاعدة البيانات</p><strong id="databaseStatus">غير متصلة</strong></div>
+</div>
+<p class="muted">لا تُعرض بيانات الطلاب إلا للمدير المصرح له من خلال الخادم.</p>
+</div>
+</section>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="studentGrade">الصف الدراسي</label>
-                    <div class="select-wrap">
-                        <i class="fa-solid fa-graduation-cap"></i>
-                        <select id="studentGrade" name="studentGrade" required>
-                            <option value="" selected disabled>اختر الصف الدراسي</option>
-                            <option value="الأول الثانوي">الأول الثانوي</option>
-                            <option value="الثاني الثانوي">الثاني الثانوي</option>
-                            <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا)</option>
-                            <option value="الثالث الثانوي">الثالث الثانوي</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>النوع</label>
-                    <div class="gender-options">
-                        <label class="gender-option">
-                            <input type="radio" name="studentGender" value="male" required>
-                            <span><i class="fa-solid fa-user"></i> طالب</span>
-                        </label>
-                        <label class="gender-option">
-                            <input type="radio" name="studentGender" value="female" required>
-                            <span><i class="fa-solid fa-user"></i> طالبة</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <p class="form-error hidden" id="formError" role="alert"></p>
-
-            <button type="submit" class="submit-button">
-                <span>دخول المنصة</span>
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-
-            <p class="privacy-note">
-                <i class="fa-solid fa-shield-halved"></i>
-                تُحفظ بيانات الدخول على هذا الجهاز فقط.
-            </p>
-        </form>
-    </section>
-
-    <div id="studentArea" class="hidden">
-        <section class="dashboard-section reveal" id="student">
-            <div class="dashboard-welcome">
-                <div class="dashboard-avatar"><i class="fa-solid fa-user-graduate"></i></div>
-                <div class="dashboard-welcome-text">
-                    <span class="eyebrow">أهلًا بعودتك</span>
-                    <h2 id="dashboardStudentName">مرحبًا بك</h2>
-                    <p id="dashboardStudentInfo"></p>
-                </div>
-                <div class="welcome-medal"><i class="fa-solid fa-star"></i></div>
-            </div>
-
-            <div class="dashboard-divider"></div>
-
-            <div class="dashboard-message">
-                <div class="message-icon"><i class="fa-solid fa-book-open"></i></div>
-                <div>
-                    <h3>رحلتك مع التاريخ تبدأ من هنا</h3>
-                    <p>تصفّح أقسام المنصة، واستعد للتعلم والفهم واكتشاف الأحداث التاريخية بصورة أعمق.</p>
-                </div>
-            </div>
-
-            <div class="quick-grid">
-                <a href="#courses" class="quick-card">
-                    <span class="quick-icon"><i class="fa-solid fa-book"></i></span>
-                    <span class="quick-title">المحتوى التعليمي</span>
-                    <span class="quick-desc">الدروس والمراجعات</span>
-                    <i class="fa-solid fa-arrow-left quick-arrow"></i>
-                </a>
-                <a href="#community" class="quick-card">
-                    <span class="quick-icon"><i class="fa-solid fa-users"></i></span>
-                    <span class="quick-title">مجتمع الطلاب</span>
-                    <span class="quick-desc">تابع أخبار المنصة</span>
-                    <i class="fa-solid fa-arrow-left quick-arrow"></i>
-                </a>
-                <a href="#help" class="quick-card">
-                    <span class="quick-icon"><i class="fa-solid fa-headset"></i></span>
-                    <span class="quick-title">المساعدة</span>
-                    <span class="quick-desc">اعثر على إجابتك</span>
-                    <i class="fa-solid fa-arrow-left quick-arrow"></i>
-                </a>
-            </div>
-        </section>
-    </div>
-
-    <section class="content-section reveal" id="courses">
-        <div class="section-title">
-            <div>
-                <span class="eyebrow">بوابتك للتعلّم</span>
-                <h2>المحتوى التعليمي</h2>
-                <p>كل ما تحتاجه لتنظيم رحلتك في دراسة التاريخ.</p>
-            </div>
-            <span class="title-decoration"><i class="fa-solid fa-book-open"></i></span>
-        </div>
-
-        <div class="course-grid">
-            <article class="course-card">
-                <div class="course-card-top">
-                    <span class="course-icon"><i class="fa-solid fa-scroll"></i></span>
-                    <span class="course-label">01</span>
-                </div>
-                <h3>الدروس التعليمية</h3>
-                <p>مساحة مخصصة للوصول إلى شرح الدروس وفق صفك الدراسي.</p>
-                <span class="course-status"><i class="fa-solid fa-circle-info"></i> في انتظار إضافة الروابط</span>
-            </article>
-
-            <article class="course-card">
-                <div class="course-card-top">
-                    <span class="course-icon"><i class="fa-solid fa-file-lines"></i></span>
-                    <span class="course-label">02</span>
-                </div>
-                <h3>الملخصات والمراجعات</h3>
-                <p>مكان منظم للملخصات وأهم النقاط التي تساعدك على المراجعة.</p>
-                <span class="course-status"><i class="fa-solid fa-circle-info"></i> في انتظار إضافة الملفات</span>
-            </article>
-
-            <article class="course-card">
-                <div class="course-card-top">
-                    <span class="course-icon"><i class="fa-solid fa-pen-to-square"></i></span>
-                    <span class="course-label">03</span>
-                </div>
-                <h3>الامتحانات والتدريبات</h3>
-                <p>مساحة للتدريب على الأسئلة ومراجعة المعلومات التاريخية.</p>
-                <span class="course-status"><i class="fa-solid fa-circle-info"></i> في انتظار إضافة الامتحانات</span>
-            </article>
-        </div>
-        <p class="section-note"><i class="fa-solid fa-circle-info"></i> هذه الأقسام جاهزة للتطوير، لكن المواد التعليمية الفعلية تحتاج إلى إضافة روابطها وملفاتها.</p>
-    </section>
-
-    <section class="community-section reveal" id="community">
-        <div class="community-content">
-            <span class="community-symbol"><i class="fa-solid fa-people-group"></i></span>
-            <span class="eyebrow">نتعلم معًا</span>
-            <h2>مجتمع تاريخ الرقي</h2>
-            <p>تابع أخبار المنصة، وتواصل مع مجتمع الطلاب من خلال الجروب الرسمي عند إضافة رابطه.</p>
-            <a href="#" id="groupLink" class="primary-link disabled-link" aria-disabled="true">
-                <i class="fa-brands fa-whatsapp"></i>
-                <span id="groupButtonText">رابط الجروب لم يُضف بعد</span>
-            </a>
-            <small class="community-hint" id="groupHint">سيظهر رابط الانضمام هنا بعد ضبطه في ملف JavaScript.</small>
-        </div>
-        <div class="community-decoration">
-            <i class="fa-solid fa-comments"></i>
-            <span></span>
-            <i class="fa-solid fa-users"></i>
-            <span></span>
-            <i class="fa-solid fa-book-open"></i>
-        </div>
-    </section>
-
-    <section class="help-section reveal" id="help">
-        <div class="section-title">
-            <div>
-                <span class="eyebrow">نحن هنا للمساعدة</span>
-                <h2>الأسئلة الشائعة</h2>
-                <p>إجابات سريعة عن استخدام المنصة.</p>
-            </div>
-            <span class="title-decoration"><i class="fa-regular fa-circle-question"></i></span>
-        </div>
-
-        <div class="faq-list">
-            <details class="faq-item">
-                <summary><span><i class="fa-solid fa-right-to-bracket"></i> كيف أسجّل الدخول؟</span><i class="fa-solid fa-chevron-down faq-arrow"></i></summary>
-                <p>اكتب اسمك، واختر الصف الدراسي والنوع، ثم اضغط على «دخول المنصة». ستُحفظ بياناتك محليًا على الجهاز نفسه.</p>
-            </details>
-
-            <details class="faq-item">
-                <summary><span><i class="fa-solid fa-book-open"></i> لماذا لا تظهر الدروس؟</span><i class="fa-solid fa-chevron-down faq-arrow"></i></summary>
-                <p>الأقسام التعليمية جاهزة من ناحية التصميم، لكنها تحتاج إلى إضافة روابط الدروس والملخصات والامتحانات الفعلية.</p>
-            </details>
-
-            <details class="faq-item">
-                <summary><span><i class="fa-solid fa-mobile-screen"></i> هل تعمل المنصة على الهاتف؟</span><i class="fa-solid fa-chevron-down faq-arrow"></i></summary>
-                <p>نعم، الواجهة متجاوبة مع أحجام الشاشات المختلفة، وتتحول قائمة التنقل إلى شريط سفلي على الشاشات الصغيرة.</p>
-            </details>
-
-            <details class="faq-item">
-                <summary><span><i class="fa-solid fa-shield-halved"></i> هل بياناتي محفوظة على الإنترنت؟</span><i class="fa-solid fa-chevron-down faq-arrow"></i></summary>
-                <p>لا. النسخة الحالية تحفظ بيانات الدخول على المتصفح والجهاز نفسه باستخدام التخزين المحلي، ولا توفر قاعدة بيانات أو مزامنة بين الأجهزة.</p>
-            </details>
-        </div>
-    </section>
-
-    <section class="assistant-section reveal" id="assistant">
-        <div class="assistant-heading">
-            <div class="assistant-avatar"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-            <div>
-                <span class="eyebrow">مساعد المنصة</span>
-                <h2>اسأل، وسنساعدك</h2>
-                <p>مساعد تفاعلي للإجابة عن أسئلة استخدام المنصة.</p>
-            </div>
-            <span class="assistant-status"><span class="status-dot"></span> متاح</span>
-        </div>
-
-        <div class="chat-messages" id="chatMessages" aria-live="polite">
-            <div class="chat-message bot-message">
-                <span class="chat-avatar"><i class="fa-solid fa-robot"></i></span>
-                <div class="chat-bubble">
-                    أهلًا بك في منصة تاريخ الرقي! 👋<br>
-                    اسألني عن تسجيل الدخول أو المحتوى التعليمي أو الجروب أو كيفية استخدام المنصة.
-                </div>
-            </div>
-        </div>
-
-        <div class="suggested-questions">
-            <button type="button" class="suggestion-button" data-question="كيف أسجل الدخول؟">تسجيل الدخول</button>
-            <button type="button" class="suggestion-button" data-question="أين أجد الدروس؟">أين الدروس؟</button>
-            <button type="button" class="suggestion-button" data-question="كيف أنضم إلى الجروب؟">الجروب</button>
-        </div>
-
-        <form id="chatForm" class="chat-form">
-            <label for="chatInput" class="sr-only">اكتب سؤالك</label>
-            <input id="chatInput" type="text" maxlength="350" placeholder="اكتب سؤالك هنا..." autocomplete="off" required>
-            <button type="submit" aria-label="إرسال السؤال"><i class="fa-solid fa-paper-plane"></i></button>
-        </form>
-        <p class="assistant-disclaimer"><i class="fa-solid fa-circle-info"></i> هذا مساعد محلي للأسئلة الشائعة، وليس نموذج ذكاء اصطناعي متصلًا بالإنترنت.</p>
-    </section>
+<footer>© منصة تاريخ الرقي — الأستاذ محمد الجداوي</footer>
 </main>
+</div>
 
-<footer class="site-footer">
-    <div class="footer-brand"><i class="fa-solid fa-landmark"></i> تاريخ الرقي</div>
-    <p>العلم نور، والتاريخ ذاكرة الأمم.</p>
-    <span>الأستاذ محمد الجداوي</span>
-</footer>
-
-<button type="button" class="back-to-top" id="backToTop" aria-label="العودة إلى أعلى الصفحة">
-    <i class="fa-solid fa-arrow-up"></i>
-</button>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="toast" class="toast" role="status"></div>
+<script type="module" src="script.js"></script>
 </body>
 </html>

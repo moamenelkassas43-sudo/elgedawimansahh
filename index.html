@@ -284,7 +284,7 @@
       </div>
     </section>
 
-    <!-- قسم المستجدات والأخبار (مشغل فيديو Streamable المضمن المضمون والحقيقي) -->
+    <!-- قسم المستجدات والأخبار (مشغل الفيديو الحقيقي مع شريط التحكم السفلي الكامل تحت الفيديو) -->
     <section id="updates" class="updates-section page-section">
       <div class="section-heading reveal">
         <div>
@@ -319,19 +319,46 @@
           </div>
         </article>
 
-        <!-- مشغل فيديو Streamable المباشر الحقيقي عبر الـ iframe المضمن المضمون -->
+        <!-- مشغل الفيديو الحقيقي مع شريط التحكم السفلي المستقل بالأسفل -->
         <article class="update-card reveal searchable-item" data-title="مكتبة الشرح والمراجعة والفيديو التعليمي">
-          <div class="update-art art-video" style="padding: 0; height: 215px; position: relative; background: #000; overflow:hidden;">
+          <div class="update-art art-video" style="padding: 0; height: 190px; position: relative; background: #000; overflow:hidden;">
             <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
             
-            <div style="width:100%;height:0;padding-bottom:56.25%;position:relative;background:#000;">
-              <iframe src="https://streamable.com/e/er34e0?autoplay=0&muted=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;overflow:hidden;" allowfullscreen></iframe>
+            <!-- عنصر الفيديو برابط مباشر عالي الجودة وسريع جداً -->
+            <video id="platformVideo" class="custom-video-player" preload="auto" playsinline>
+              <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+              متصفحك لا يدعم تشغيل الفيديو.
+            </video>
+          </div>
+
+          <!-- شريط التحكم السفلي المستقل تحت الفيديو تماماً -->
+          <div class="video-bottom-toolbar" id="videoBottomToolbar">
+            <div class="vid-progress-container" id="vidProgressContainer">
+              <div class="vid-progress-bar" id="vidProgressBar"></div>
+            </div>
+            <div class="vid-controls-row">
+              <div class="vid-left-group">
+                <button type="button" id="vidPlayPauseBtn" class="vid-btn haptic-btn" title="تشغيل / إيقاف">
+                  <i class="fa-solid fa-play" id="vidPlayIcon"></i>
+                </button>
+                <span class="vid-time" id="vidTimeDisplay">0:00 / 0:00</span>
+              </div>
+              <div class="vid-right-group">
+                <button type="button" id="vidMuteBtn" class="vid-btn haptic-btn" title="كتم الصوت">
+                  <i class="fa-solid fa-volume-high" id="vidMuteIcon"></i>
+                </button>
+                <input type="range" id="vidVolumeSlider" class="vid-volume-slider" min="0" max="1" step="0.05" value="1" title="مستوى الصوت">
+                <button type="button" id="vidFullscreenBtn" class="vid-btn haptic-btn" title="ملء الشاشة بالكامل">
+                  <i class="fa-solid fa-expand"></i>
+                </button>
+              </div>
             </div>
           </div>
+
           <div class="update-body">
             <span class="update-tag blue-tag">الفيديوهات</span>
             <h3>مكتبة الشرح والمراجعة</h3>
-            <p>فيديو Streamable الحقيقي والمباشر يعمل بكفاءة تامة، تشغيل وصوت كامل ووضع ملء الشاشة.</p>
+            <p>تحكم كامل فعلي: تشغيل/إيقاف، شريط زمني، تحكم بالصوت، ووضع ملء الشاشة.</p>
             <div class="update-meta"><span><i class="fa-regular fa-circle-play"></i> محتوى مرئي</span><span>02</span></div>
           </div>
         </article>

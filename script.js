@@ -11,6 +11,7 @@
   const authMessage = $('#authMessage');
   const toast = $('#toast');
   const bellBtn = $('#bellBtn');
+  const notifBadge = $('#notifBadge');
   const notificationsDropdown = $('#notificationsDropdown');
   const logoutBtn = $('#logoutBtn');
   const mobileMenuBtn = $('#mobileMenuBtn');
@@ -25,11 +26,12 @@
   const particlesCanvas = $('#particlesCanvas');
 
   const STORAGE_KEY = 'tareekh_alroqi_profile_v2';
+  const FAVORITES_KEY = 'tareekh_alroqi_favorites';
   let toastTimer;
   let activeImgSrc = '';
   let currentRotation = 0;
 
-  // تأثير الصوت التفاعلي (Web Audio API بدون ملفات خارجية)
+  // تأثير الصوت التفاعلي (Web Audio API)
   function playClickSound() {
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -47,7 +49,7 @@
     } catch (_) {}
   }
 
-  // تأثير الاهتزاز (Haptic Feedback)
+  // تأثير الاهتزاز (Haptic Feedback) والصوت
   function triggerHaptic() {
     if (navigator.vibrate) {
       try { navigator.vibrate(35); } catch (_) {}
@@ -55,13 +57,73 @@
     playClickSound();
   }
 
-  // ربط الاهتزاز والصوت بالأزرار التفاعلية
   document.addEventListener('click', e => {
     const btn = e.target.closest('button, a, select');
     if (btn) triggerHaptic();
   });
 
-  // خلفية النقاط المتحركة التفاعلية (Particles)
+  // إدارة المفضلة (الحفظ) في جميع الأقسام
+  function setupFavorites() {
+    let savedFavs = [];
+    try {
+      savedFavs = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+    } catch (_) {}
+
+    $$('.favorite-btn, .favorite-btn-absolute').forEach(btn => {
+      const card = btn.closest('.feature-card, .update-card');
+      const title = card?.dataset?.title || card?.querySelector('h3')?.textContent || 'عنصر';
+
+      if (savedFavs.includes(title)) {
+        btn.classList.add('is-favorite');
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = 'fa-solid fa-bookmark';
+      }
+
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const isFav = btn.classList.toggle('is-favorite');
+        const icon = btn.querySelector('i');
+        if (icon) {
+          icon.className = isFav ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
+        }
+
+        try {
+          let current = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+          if (isFav) {
+            if (!current.includes(title)) current.push(title);
+            showToast(`تم حفظ "${title}" في المفضلة`);
+          } else {
+            current = current.filter(t => t !== title);
+            showToast(`تمت الإزالة من المفضلة`);
+          }
+          localStorage.setItem(FAVORITES_KEY, JSON.stringify(current));
+        } catch (_) {}
+      });
+    });
+  }
+
+  // البحث الفوري في كل قسم
+  function setupSearch() {
+    $$('.section-search-input').forEach(input => {
+      input.addEventListener('input', e => {
+        const query = e.target.value.trim().toLowerCase();
+        const targetId = input.dataset.target;
+        const container = document.getElementById(targetId);
+        if (!container) return;
+
+        const items = container.querySelectorAll('.searchable-item');
+        let foundCount = 0;
+        items.forEach(item => {
+          const title = (item.dataset.title || item.querySelector('h3')?.textContent || '').toLowerCase();
+          const match = title.includes(query);
+          item.style.display = match ? '' : 'none';
+          if (match) foundCount++;
+        });
+      });
+    });
+  }
+
+  // خلفية النقاط المتحركة (Particles)
   function initParticles() {
     if (!particlesCanvas) return;
     const ctx = particlesCanvas.getContext('2d');
@@ -112,7 +174,7 @@
     animate();
   }
 
-  function setTheme(gender, isManualDay = false) {
+  function setTheme(gender) {
     const isFemale = gender === 'female';
     document.body.classList.toggle('theme-female', isFemale);
     document.body.classList.toggle('theme-male', !isFemale);
@@ -122,20 +184,18 @@
     }
   }
 
-  // تبديل الوضع النهاري / الليلي يدوياً
   themeToggleBtn?.addEventListener('click', () => {
-    const currentGender = genderSelect ? genderSelect.value : 'male';
     const isFemale = document.body.classList.contains('theme-female');
     if (isFemale) {
       document.body.classList.remove('theme-female');
       document.body.classList.add('theme-male');
       if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
-      showToast('تم التبديل للوضع الليلي (الأزرق الملكي)');
+      showToast('تم التبديل للوضع الليلي');
     } else {
       document.body.classList.remove('theme-male');
       document.body.classList.add('theme-female');
       if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
-      showToast('تم التبديل للوضع النهاري (الوردي الراقي)');
+      showToast('تم التبديل للوضع النهاري');
     }
   });
 
@@ -224,6 +284,8 @@
       mainApp.classList.remove('hidden');
       requestAnimationFrame(() => { mainApp.classList.add('is-ready'); });
       setupReveal();
+      setupFavorites();
+      setupSearch();
     }, 260);
   }
 
@@ -278,7 +340,7 @@
     showToast('تم تسجيل الخروج.');
   });
 
-  // تفاعل عرض وتكبير الصورة مع خيارات الدقة والتدوير
+  // تفاعل عرض وتكبير الصورة
   document.addEventListener('click', event => {
     const btn = event.target.closest('.view-image-btn') || event.target.closest('.zoomable-image');
     if (btn) {
@@ -305,13 +367,13 @@
       if (modalImage) {
         if (q === '4k') {
           modalImage.style.filter = 'contrast(1.1) saturate(1.15) brightness(1.02)';
-          showToast('تم التبديل إلى الدقة الفائقة (4K)');
+          showToast('الدقة الفائقة (4K)');
         } else if (q === 'hd') {
           modalImage.style.filter = 'contrast(1.05) saturate(1.08)';
-          showToast('تم التبديل إلى الجودة العالية (HD)');
+          showToast('الجودة العالية (HD)');
         } else {
           modalImage.style.filter = 'none';
-          showToast('تم التبديل إلى الدقة العادية');
+          showToast('الجودة العادية');
         }
       }
     });
@@ -325,11 +387,15 @@
     }
   });
 
+  // الجرس والإشعارات (إخفاء العداد عند الفتح)
   bellBtn?.addEventListener('click', event => {
     event.stopPropagation();
     const willOpen = notificationsDropdown.classList.contains('hidden');
     notificationsDropdown.classList.toggle('hidden', !willOpen);
     bellBtn.setAttribute('aria-expanded', String(willOpen));
+    if (willOpen && notifBadge) {
+      notifBadge.style.display = 'none';
+    }
   });
 
   document.addEventListener('click', () => {
@@ -359,6 +425,8 @@
   setTheme('male');
   setupReveal();
   initParticles();
+  setupFavorites();
+  setupSearch();
 
   try {
     const saved = localStorage.getItem(STORAGE_KEY);

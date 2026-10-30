@@ -15,20 +15,129 @@
   const logoutBtn = $('#logoutBtn');
   const mobileMenuBtn = $('#mobileMenuBtn');
   const mobileNav = $('#mobileNav');
+  const themeToggleBtn = $('#themeToggleBtn');
+  const themeIcon = $('#themeIcon');
   const imageModal = $('#imageModal');
   const modalImage = $('#modalImage');
   const closeModalBtn = $('#closeModalBtn');
+  const rotateImgBtn = $('#rotateImgBtn');
   const qualityBtns = $$('.q-btn');
+  const particlesCanvas = $('#particlesCanvas');
 
   const STORAGE_KEY = 'tareekh_alroqi_profile_v2';
   let toastTimer;
   let activeImgSrc = '';
+  let currentRotation = 0;
 
-  function setTheme(gender) {
+  // تأثير الصوت التفاعلي (Web Audio API بدون ملفات خارجية)
+  function playClickSound() {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(580, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(320, audioCtx.currentTime + 0.06);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.06);
+    } catch (_) {}
+  }
+
+  // تأثير الاهتزاز (Haptic Feedback)
+  function triggerHaptic() {
+    if (navigator.vibrate) {
+      try { navigator.vibrate(35); } catch (_) {}
+    }
+    playClickSound();
+  }
+
+  // ربط الاهتزاز والصوت بالأزرار التفاعلية
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('button, a, select');
+    if (btn) triggerHaptic();
+  });
+
+  // خلفية النقاط المتحركة التفاعلية (Particles)
+  function initParticles() {
+    if (!particlesCanvas) return;
+    const ctx = particlesCanvas.getContext('2d');
+    let width = particlesCanvas.width = window.innerWidth;
+    let height = particlesCanvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = particlesCanvas.width = window.innerWidth;
+      height = particlesCanvas.height = window.innerHeight;
+    });
+
+    const particles = Array.from({ length: 42 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
+      radius: Math.random() * 2 + 1
+    }));
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = document.body.classList.contains('theme-female') ? 'rgba(241,124,181,0.28)' : 'rgba(108,168,255,0.25)';
+      ctx.strokeStyle = document.body.classList.contains('theme-female') ? 'rgba(241,124,181,0.08)' : 'rgba(108,168,255,0.08)';
+
+      particles.forEach((p, index) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let j = index + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 110) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+  }
+
+  function setTheme(gender, isManualDay = false) {
     const isFemale = gender === 'female';
     document.body.classList.toggle('theme-female', isFemale);
     document.body.classList.toggle('theme-male', !isFemale);
+
+    if (themeIcon) {
+      themeIcon.className = document.body.classList.contains('theme-female') ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+    }
   }
+
+  // تبديل الوضع النهاري / الليلي يدوياً
+  themeToggleBtn?.addEventListener('click', () => {
+    const currentGender = genderSelect ? genderSelect.value : 'male';
+    const isFemale = document.body.classList.contains('theme-female');
+    if (isFemale) {
+      document.body.classList.remove('theme-female');
+      document.body.classList.add('theme-male');
+      if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+      showToast('تم التبديل للوضع الليلي (الأزرق الملكي)');
+    } else {
+      document.body.classList.remove('theme-male');
+      document.body.classList.add('theme-female');
+      if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
+      showToast('تم التبديل للوضع النهاري (الوردي الراقي)');
+    }
+  });
 
   function showToast(message) {
     if (!toast) return;
@@ -47,63 +156,33 @@
   function makeSessionCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const bytes = new Uint8Array(7);
-
     if (window.crypto?.getRandomValues) {
       window.crypto.getRandomValues(bytes);
     } else {
-      for (let i = 0; i < bytes.length; i++) {
-        bytes[i] = Math.floor(Math.random() * 256);
-      }
+      for (let i = 0; i < bytes.length; i++) { bytes[i] = Math.floor(Math.random() * 256); }
     }
-
-    return 'TR-' + [...bytes]
-      .map(number => chars[number % chars.length])
-      .join('');
+    return 'TR-' + [...bytes].map(n => chars[n % chars.length]).join('');
   }
 
   function normalizePhone(phone) {
-    return phone
-      .replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)))
-      .replace(/\s+/g, '');
+    return phone.replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/\s+/g, '');
   }
 
   function validateProfile(data) {
     const name = String(data.name || '').trim().replace(/\s+/g, ' ');
     const phone = normalizePhone(String(data.phone || '').trim());
-
-    const allowedGrades = [
-      'الأول الثانوي',
-      'الثاني الثانوي',
-      'الثاني الثانوي (البكالوريا)',
-      'الثالث الثانوي'
-    ];
+    const allowedGrades = ['الأول الثانوي', 'الثاني الثانوي', 'الثاني الثانوي (البكالوريا)', 'الثالث الثانوي'];
 
     if (name.length < 5 || name.split(' ').length < 3) {
       throw new Error('اكتب الاسم الثلاثي على الأقل.');
     }
-
-    if (name.length > 90) {
-      throw new Error('الاسم أطول من المسموح.');
-    }
-
     if (!/^01[0125]\d{8}$/.test(phone)) {
-      throw new Error('اكتب رقم هاتف مصري صحيحًا مكوّنًا من 11 رقمًا.');
+      throw new Error('اكتب رقم هاتف مصري صحيحًا مكونًا من 11 رقمًا.');
     }
-
     if (!allowedGrades.includes(data.grade)) {
       throw new Error('اختر صفًا دراسيًا صحيحًا.');
     }
-
-    if (!['male', 'female'].includes(data.gender)) {
-      throw new Error('اختر النوع بشكل صحيح.');
-    }
-
-    return {
-      name,
-      phone,
-      grade: data.grade,
-      gender: data.gender
-    };
+    return { name, phone, grade: data.grade, gender: data.gender };
   }
 
   function renderProfile(profile) {
@@ -116,12 +195,10 @@
 
   function setupReveal() {
     const elements = $$('.reveal');
-
     if (!('IntersectionObserver' in window)) {
-      elements.forEach(element => element.classList.add('is-visible'));
+      elements.forEach(el => el.classList.add('is-visible'));
       return;
     }
-
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -129,15 +206,12 @@
           observer.unobserve(entry.target);
         }
       });
-    }, {
-      threshold: 0.12,
-      rootMargin: '0px 0px -35px 0px'
-    });
+    }, { threshold: 0.12, rootMargin: '0px 0px -35px 0px' });
 
-    elements.forEach((element, index) => {
-      if (!element.closest('#authModal')) {
-        element.style.transitionDelay = `${Math.min(index % 4, 3) * 70}ms`;
-        observer.observe(element);
+    elements.forEach((el, index) => {
+      if (!el.closest('#authModal')) {
+        el.style.transitionDelay = `${Math.min(index % 4, 3) * 70}ms`;
+        observer.observe(el);
       }
     });
   }
@@ -145,15 +219,10 @@
   function openApp(profile) {
     renderProfile(profile);
     authModal.classList.add('is-leaving');
-
     setTimeout(() => {
       authModal.classList.add('hidden');
       mainApp.classList.remove('hidden');
-
-      requestAnimationFrame(() => {
-        mainApp.classList.add('is-ready');
-      });
-
+      requestAnimationFrame(() => { mainApp.classList.add('is-ready'); });
       setupReveal();
     }, 260);
   }
@@ -161,10 +230,8 @@
   function closeApp() {
     mainApp.classList.remove('is-ready');
     mainApp.classList.add('hidden');
-
     authModal.classList.remove('hidden', 'is-leaving');
     loginForm.reset();
-
     setTheme('male');
     setAuthMessage('');
   }
@@ -177,8 +244,7 @@
     const originalMarkup = submitBtn.innerHTML;
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML =
-      '<i class="fa-solid fa-circle-notch fa-spin"></i><span>جارٍ تجهيز الدخول...</span>';
+    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>جارٍ تجهيز الدخول...</span>';
 
     try {
       const profile = validateProfile({
@@ -188,18 +254,11 @@
         gender: genderSelect.value
       });
 
-      const localProfile = {
-        ...profile,
-        code: makeSessionCode(),
-        mode: 'local-preview'
-      };
-
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(localProfile));
-      } catch (_) {}
+      const localProfile = { ...profile, code: makeSessionCode(), mode: 'local-preview' };
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(localProfile)); } catch (_) {}
 
       openApp(localProfile);
-      showToast('تم تسجيل الدخول وحفظ الجلسة بنجاح.');
+      showToast('مرحباً بك! تم تسجيل الدخول بنجاح.');
     } catch (error) {
       setAuthMessage(error.message || 'حدث خطأ غير متوقع.');
     } finally {
@@ -213,49 +272,52 @@
   });
 
   logoutBtn?.addEventListener('click', async () => {
-    if (!confirm('هل تريد إنهاء الجلسة الحالية وتسجيل الخروج؟')) return;
-
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (_) {}
-
+    if (!confirm('هل تريد تسجيل الخروج؟')) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
     closeApp();
-    showToast('تم تسجيل الخروج بنجاح.');
+    showToast('تم تسجيل الخروج.');
   });
 
-  // تفاعل فتح الصورة مع اختيار الجودات
+  // تفاعل عرض وتكبير الصورة مع خيارات الدقة والتدوير
   document.addEventListener('click', event => {
     const btn = event.target.closest('.view-image-btn') || event.target.closest('.zoomable-image');
     if (btn) {
       activeImgSrc = btn.dataset?.img || btn.src;
+      currentRotation = 0;
       if (activeImgSrc && modalImage && imageModal) {
         modalImage.src = activeImgSrc;
+        modalImage.style.transform = `rotate(${currentRotation}deg)`;
         imageModal.classList.remove('hidden');
       }
     }
+  });
+
+  rotateImgBtn?.addEventListener('click', () => {
+    currentRotation = (currentRotation + 90) % 360;
+    if (modalImage) modalImage.style.transform = `rotate(${currentRotation}deg)`;
   });
 
   qualityBtns.forEach(qBtn => {
     qBtn.addEventListener('click', () => {
       qualityBtns.forEach(b => b.classList.remove('active'));
       qBtn.classList.add('active');
-      const quality = qBtn.dataset.quality;
+      const q = qBtn.dataset.quality;
       if (modalImage) {
-        if (quality === 'hd') {
+        if (q === '4k') {
+          modalImage.style.filter = 'contrast(1.1) saturate(1.15) brightness(1.02)';
+          showToast('تم التبديل إلى الدقة الفائقة (4K)');
+        } else if (q === 'hd') {
           modalImage.style.filter = 'contrast(1.05) saturate(1.08)';
           showToast('تم التبديل إلى الجودة العالية (HD)');
         } else {
           modalImage.style.filter = 'none';
-          showToast('تم التبديل إلى الجودة العادية');
+          showToast('تم التبديل إلى الدقة العادية');
         }
       }
     });
   });
 
-  const closeImageModal = () => {
-    if (imageModal) imageModal.classList.add('hidden');
-  };
-
+  const closeImageModal = () => { if (imageModal) imageModal.classList.add('hidden'); };
   closeModalBtn?.addEventListener('click', closeImageModal);
   imageModal?.addEventListener('click', event => {
     if (event.target === imageModal || event.target.classList.contains('image-modal-backdrop')) {
@@ -280,28 +342,23 @@
     const willOpen = mobileNav.classList.contains('hidden');
     mobileNav.classList.toggle('hidden', !willOpen);
     mobileMenuBtn.setAttribute('aria-expanded', String(willOpen));
-    mobileMenuBtn.innerHTML = willOpen
-      ? '<i class="fa-solid fa-xmark"></i>'
-      : '<i class="fa-solid fa-bars"></i>';
+    mobileMenuBtn.innerHTML = willOpen ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
   });
 
   $$('#mobileNav a').forEach(link => {
     link.addEventListener('click', () => {
       mobileNav.classList.add('hidden');
       mobileMenuBtn?.setAttribute('aria-expanded', 'false');
-      if (mobileMenuBtn) {
-        mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
-      }
+      if (mobileMenuBtn) mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
     });
   });
 
   const yearElement = $('#currentYear');
-  if (yearElement) {
-    yearElement.textContent = new Date().getFullYear();
-  }
+  if (yearElement) yearElement.textContent = new Date().getFullYear();
 
   setTheme('male');
   setupReveal();
+  initParticles();
 
   try {
     const saved = localStorage.getItem(STORAGE_KEY);

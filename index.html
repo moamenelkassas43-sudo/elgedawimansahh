@@ -50,28 +50,30 @@
     </div>
 
     <form id="loginForm" class="auth-form">
-      <label class="field-label" for="studentName">الاسم الثلاثي</label>
-      <div class="input-wrap">
-        <i class="fa-regular fa-user"></i>
-        <input id="studentName" name="name" type="text" autocomplete="name" minlength="5" maxlength="90" required placeholder="اكتب اسمك الثلاثي">
+      <div class="input-group-styled">
+        <label class="field-label" for="studentName">الاسم الثلاثي</label>
+        <div class="input-wrap">
+          <i class="fa-regular fa-user"></i>
+          <input id="studentName" name="name" type="text" autocomplete="name" minlength="5" maxlength="90" required placeholder="اكتب اسمك الثلاثي">
+        </div>
       </div>
 
       <div class="form-grid">
-        <div>
+        <div class="input-group-styled">
           <label class="field-label" for="studentGrade">الصف الدراسي</label>
           <div class="select-wrap">
             <i class="fa-solid fa-book-open"></i>
             <select id="studentGrade" name="grade" required>
               <option value="الأول الثانوي">الأول الثانوي</option>
               <option value="الثاني الثانوي">الثاني الثانوي</option>
-              <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا)</option>
+              <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا☝🏻)</option>
               <option value="الثالث الثانوي">الثالث الثانوي</option>
             </select>
           </div>
         </div>
 
-        <div>
-          <label class="field-label" for="studentGender">النوع</label>
+        <div class="input-group-styled">
+          <label class="field-label" for="studentGender">النوع (لتحديد الثيم)</label>
           <div class="select-wrap">
             <i class="fa-solid fa-venus-mars"></i>
             <select id="studentGender" name="gender" required>
@@ -82,15 +84,17 @@
         </div>
       </div>
 
-      <label class="field-label" for="studentPhone">رقم الهاتف المصري</label>
-      <div class="input-wrap">
-        <i class="fa-solid fa-mobile-screen-button"></i>
-        <input id="studentPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" pattern="01[0125][0-9]{8}" maxlength="11" required placeholder="01xxxxxxxxx">
+      <div class="input-group-styled">
+        <label class="field-label" for="studentPhone">رقم الهاتف المصري</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <input id="studentPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" pattern="01[0125][0-9]{8}" maxlength="11" required placeholder="01xxxxxxxxx">
+        </div>
       </div>
 
       <p class="privacy-note">
         <i class="fa-solid fa-shield-halved"></i>
-        هذه نسخة تجريبية؛ لا تُدخل بيانات حساسة.
+        بياناتك محفوظة بأمان تام في المنصة.
       </p>
 
       <button id="submitBtn" type="submit" class="primary-btn">
@@ -276,10 +280,10 @@
       <div class="updates-grid">
         <article class="update-card reveal">
           <div class="update-art art-news" style="padding: 0; overflow: hidden; position: relative;">
-            <span class="pulse-badge" title="صورة جديدة"></span>
+            <span class="pulse-badge" title="تحديث جديد"></span>
             <img src="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg" alt="آخر الأخبار" class="zoomable-image" style="width: 100%; height: 100%; object-fit: cover; display: block;">
             <button type="button" class="view-image-btn" data-img="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg">
-              <i class="fa-solid fa-expand"></i> اضغط للعرض
+              <i class="fa-solid fa-expand"></i> اضغط للعرض والتكبير
             </button>
           </div>
           <div class="update-body">
@@ -335,12 +339,20 @@
   </footer>
 </div>
 
-<!-- Modal  مضئ لعرض الصورة المكبرة بوضوح  -->
+<!-- Modal لعرض الصورة المكبرة مع جودات عرض مختلفة -->
 <div id="imageModal" class="image-modal hidden">
   <div class="image-modal-backdrop"></div>
   <div class="image-modal-content">
-    <button id="closeModalBtn" class="close-modal-btn" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
-    <img id="modalImage" src="" alt="صورة مكبرة">
+    <div class="modal-header-actions">
+      <div class="quality-selector">
+        <button type="button" class="q-btn active" data-quality="hd">جودة عالية (HD)</button>
+        <button type="button" class="q-btn" data-quality="normal">جودة عادية</button>
+      </div>
+      <button id="closeModalBtn" class="close-modal-btn" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-img-container">
+      <img id="modalImage" src="" alt="صورة مكبرة">
+    </div>
   </div>
 </div>
 

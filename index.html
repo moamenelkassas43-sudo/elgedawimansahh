@@ -8,7 +8,7 @@
 <title>تاريخ الرقي | الأستاذ محمد الجداوي</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="style.css">
 <script>document.documentElement.classList.add('js-ready')</script>
@@ -68,7 +68,7 @@
             <select id="studentGrade" name="grade" required>
               <option value="الأول الثانوي">الأول الثانوي</option>
               <option value="الثاني الثانوي">الثاني الثانوي</option>
-              <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا😎)</option>
+              <option value="البكالوريا الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا😎)</option>
               <option value="الثالث الثانوي">الثالث الثانوي</option>
             </select>
           </div>
@@ -129,7 +129,7 @@
         </span>
       </a>
 
-      <!-- شريط التنقل العلوي مفعل بالكامل للكمبيوتر والشاشات الكبيرة -->
+      <!-- شريط التنقل العلوي مفعل بالكامل -->
       <nav class="desktop-nav" aria-label="التنقل الرئيسي">
         <a class="nav-link active" href="#home"><i class="fa-solid fa-house"></i> الرئيسية</a>
         <a class="nav-link" href="#learning"><i class="fa-solid fa-compass"></i> محتوى المنصة</a>
@@ -138,12 +138,13 @@
       </nav>
 
       <div class="header-actions">
-        <!-- زر التبديل السريع بين الوضع النهاري والليلي -->
+        <!-- زر تبديل الوضع النهاري / الليلي -->
         <button id="themeToggleBtn" class="icon-btn haptic-btn" aria-label="تبديل الوضع النهاري والليلي" title="الوضع النهاري/الليلي">
           <i class="fa-solid fa-sun" id="themeIcon"></i>
         </button>
+        <!-- زر الجرس مع عداد الإشعارات التفاعلي -->
         <button id="bellBtn" class="icon-btn notification-trigger haptic-btn" aria-label="فتح التنبيهات" aria-expanded="false">
-          <i class="fa-regular fa-bell"></i><span class="notification-dot"></span>
+          <i class="fa-regular fa-bell"></i><span id="notifBadge" class="notification-badge">2</span>
         </button>
         <button id="logoutBtn" class="logout-btn haptic-btn">
           <i class="fa-solid fa-arrow-right-from-bracket"></i><span>خروج</span>
@@ -157,16 +158,23 @@
     <div id="notificationsDropdown" class="notification-panel hidden">
       <div class="panel-title">
         <span><i class="fa-regular fa-bell"></i> مركز التنبيهات</span>
-        <span class="panel-status">نشط</span>
+        <span class="panel-status">2 إشعارات جديدة</span>
       </div>
       <div class="notification-item">
         <span class="notification-icon"><i class="fa-solid fa-sparkles"></i></span>
         <div>
-          <strong>تحديثات جديدة في المنصة</strong>
-          <p>تم إضافة خاصية معاينة الصور بدقة عالية ومؤثرات تفاعلية.</p>
+          <strong>تم إضافة صورة ومحتوى جديد</strong>
+          <p>راجع قسم المستجدات لتفقد آخر الصور والإعلانات.</p>
         </div>
       </div>
-      <p class="panel-footnote">جميع المراجعات متوفرة حصرياً عبر المنصة.</p>
+      <div class="notification-item" style="border-top:1px solid var(--line); margin-top:5px; padding-top:10px;">
+        <span class="notification-icon" style="background:rgba(217,183,106,.15); color:var(--gold);"><i class="fa-solid fa-book"></i></span>
+        <div>
+          <strong>جدول المراجعات الأسبوعية</strong>
+          <p>تم تحديث مواعيد البثوث والمراجعات النهائية.</p>
+        </div>
+      </div>
+      <p class="panel-footnote">تم تحديث الإشعارات تلقائياً اليوم.</p>
     </div>
 
     <nav id="mobileNav" class="mobile-nav hidden" aria-label="قائمة الهاتف">
@@ -238,6 +246,7 @@
       </div>
     </section>
 
+    <!-- مساحات المعرفة مع شريط البحث والفظلة في كل قسم -->
     <section id="learning" class="content-section page-section">
       <div class="section-heading reveal">
         <div>
@@ -245,11 +254,20 @@
           <h2>مساحات <span class="gold-text">المعرفة</span></h2>
           <p>كل قسم صُمّم ليكون نقطة انطلاق للتعلّم والفهم.</p>
         </div>
-        <span class="section-number">02 <i class="fa-solid fa-arrow-up-left-from-circle"></i></span>
+        <div class="section-actions-row">
+          <div class="search-box-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" class="section-search-input" placeholder="ابحث في الأقسام..." data-target="learningGrid">
+          </div>
+          <span class="section-number">02 <i class="fa-solid fa-arrow-up-left-from-circle"></i></span>
+        </div>
       </div>
 
-      <div class="feature-grid">
-        <article class="feature-card reveal">
+      <div id="learningGrid" class="feature-grid">
+        <article class="feature-card reveal searchable-item" data-title="المحتوى الدراسي">
+          <div class="card-top-actions">
+            <button type="button" class="favorite-btn haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+          </div>
           <div class="feature-top"><span class="feature-icon icon-amber"><i class="fa-solid fa-book-open-reader"></i></span><span class="feature-number">01</span></div>
           <p class="feature-label">LEARN & UNDERSTAND</p>
           <h3>المحتوى الدراسي</h3>
@@ -257,7 +275,10 @@
           <a href="#updates" class="feature-link haptic-btn">استكشف المستجدات <i class="fa-solid fa-arrow-left"></i></a>
         </article>
 
-        <article class="feature-card reveal">
+        <article class="feature-card reveal searchable-item" data-title="مكتبة الفيديو">
+          <div class="card-top-actions">
+            <button type="button" class="favorite-btn haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+          </div>
           <div class="feature-top"><span class="feature-icon icon-blue"><i class="fa-solid fa-circle-play"></i></span><span class="feature-number">02</span></div>
           <p class="feature-label">WATCH & DISCOVER</p>
           <h3>مكتبة الفيديو</h3>
@@ -265,7 +286,10 @@
           <a href="#updates" class="feature-link haptic-btn">تعرّف على التحديثات <i class="fa-solid fa-arrow-left"></i></a>
         </article>
 
-        <article class="feature-card reveal">
+        <article class="feature-card reveal searchable-item" data-title="نصائح دراسية">
+          <div class="card-top-actions">
+            <button type="button" class="favorite-btn haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+          </div>
           <div class="feature-top"><span class="feature-icon icon-violet"><i class="fa-solid fa-lightbulb"></i></span><span class="feature-number">03</span></div>
           <p class="feature-label">THINK & GROW</p>
           <h3>نصائح دراسية</h3>
@@ -275,7 +299,7 @@
       </div>
     </section>
 
-    <!-- قسم المستجدات والأخبار مع النقطة الحمراء النابضة وزر العرض المتطور -->
+    <!-- قسم المستجدات والأخبار مع شريط البحث، المفضلة، النقطة الحمراء وزر العرض -->
     <section id="updates" class="updates-section page-section">
       <div class="section-heading reveal">
         <div>
@@ -283,13 +307,20 @@
           <h2>آخر <span class="gold-text">المستجدات</span></h2>
           <p>المحتوى الظاهر هنا نماذج توضيحية قابلة للتحديث.</p>
         </div>
-        <span class="section-number">03 <i class="fa-regular fa-newspaper"></i></span>
+        <div class="section-actions-row">
+          <div class="search-box-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" class="section-search-input" placeholder="ابحث في المستجدات..." data-target="updatesGrid">
+          </div>
+          <span class="section-number">03 <i class="fa-regular fa-newspaper"></i></span>
+        </div>
       </div>
 
-      <div class="updates-grid">
-        <article class="update-card reveal">
+      <div id="updatesGrid" class="updates-grid">
+        <article class="update-card reveal searchable-item" data-title="تابع إعلانات المنصة والصورة الجديدة">
           <div class="update-art art-news" style="padding: 0; overflow: hidden; position: relative;">
             <span class="pulse-badge" title="يوجد تحديث جديد!"></span>
+            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
             <img src="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg" alt="آخر الأخبار" class="zoomable-image" style="width: 100%; height: 100%; object-fit: cover; display: block;">
             <button type="button" class="view-image-btn haptic-btn" data-img="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg">
               <i class="fa-solid fa-expand"></i> اضغط للعرض المكبر
@@ -303,8 +334,11 @@
           </div>
         </article>
 
-        <article class="update-card reveal">
-          <div class="update-art art-video"><i class="fa-solid fa-play"></i><span>VIDEO LIBRARY</span></div>
+        <article class="update-card reveal searchable-item" data-title="مكتبة الشرح والمراجعة">
+          <div class="update-art art-video" style="position:relative;">
+            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+            <i class="fa-solid fa-play"></i><span>VIDEO LIBRARY</span>
+          </div>
           <div class="update-body">
             <span class="update-tag blue-tag">الفيديوهات</span>
             <h3>مكتبة الشرح والمراجعة</h3>
@@ -313,8 +347,11 @@
           </div>
         </article>
 
-        <article id="studyTips" class="update-card reveal">
-          <div class="update-art art-tips"><i class="fa-solid fa-brain"></i><span>STUDY SMARTER</span></div>
+        <article id="studyTips" class="update-card reveal searchable-item" data-title="افهم العلاقة قبل حفظ التاريخ">
+          <div class="update-art art-tips" style="position:relative;">
+            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+            <i class="fa-solid fa-brain"></i><span>STUDY SMARTER</span>
+          </div>
           <div class="update-body">
             <span class="update-tag violet-tag">نصيحة</span>
             <h3>افهم العلاقة قبل حفظ التاريخ</h3>
@@ -348,7 +385,7 @@
   </footer>
 </div>
 
-<!-- العارض المطور للصورة (Lightbox مع خيارات الجودة، التدوير، والتكبير الكامل) -->
+<!-- العارض المطور للصورة (Lightbox مع خيارات الدقة، التدوير، والتكبير الكامل) -->
 <div id="imageModal" class="image-modal hidden">
   <div class="image-modal-backdrop"></div>
   <div class="image-modal-content">

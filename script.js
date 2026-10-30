@@ -52,7 +52,6 @@
     } catch (_) {}
   }
 
-  // تأثير الاهتزاز والصوت
   function triggerHaptic() {
     if (navigator.vibrate) {
       try { navigator.vibrate(35); } catch (_) {}
@@ -65,7 +64,7 @@
     if (btn) triggerHaptic();
   });
 
-  // إدارة المفضلة والحفظ في جميع الأقسام وعند دخول القسم وفرز العناصر
+  // إدارة المفضلة والحفظ
   function setupFavorites() {
     let savedFavs = [];
     try {
@@ -105,7 +104,7 @@
     });
   }
 
-  // البحث الفوري في كل قسم
+  // البحث الفوري
   function setupSearch() {
     $$('.section-search-input').forEach(input => {
       input.addEventListener('input', e => {
@@ -341,7 +340,7 @@
     showToast('تم تسجيل الخروج.');
   });
 
-  // تفاعل عرض الصورة وملء الشاشة وتنزيل الصورة الحقيقية
+  // تفاعل عرض الصورة وملء الشاشة وتنزيل الصورة
   document.addEventListener('click', event => {
     const btn = event.target.closest('.view-image-btn') || event.target.closest('.zoomable-image');
     if (btn) {
@@ -360,7 +359,6 @@
     if (modalImage) modalImage.style.transform = `rotate(${currentRotation}deg)`;
   });
 
-  // زر تنزيل الصورة الحقيقية
   downloadImgBtn?.addEventListener('click', () => {
     if (!activeImgSrc) return;
     const a = document.createElement('a');
@@ -372,7 +370,6 @@
     showToast('جارٍ تنزيل الصورة الحقيقية...');
   });
 
-  // زر ملء الشاشة بالكامل للعارض
   fullscreenImgBtn?.addEventListener('click', () => {
     if (modalImgContainerBox) {
       if (!document.fullscreenElement) {
@@ -398,7 +395,7 @@
           showToast('الجودة العالية (HD)');
         } else {
           modalImage.style.filter = 'none';
-          showToast('الجودة العادية');
+          showToast('الدقة العادية');
         }
       }
     });
@@ -412,7 +409,6 @@
     }
   });
 
-  // الجرس والإشعارات (مطابق تماماً لما تحدده بدون زيادة)
   bellBtn?.addEventListener('click', event => {
     event.stopPropagation();
     const willOpen = notificationsDropdown.classList.contains('hidden');

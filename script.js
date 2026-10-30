@@ -18,6 +18,18 @@
   const mobileNav = $('#mobileNav');
   const themeToggleBtn = $('#themeToggleBtn');
   const themeIcon = $('#themeIcon');
+  
+  // مشغل الفيديو الحقيقي وأزرار التحكم السفلیة
+  const platformVideo = $('#platformVideo');
+  const vidPlayPauseBtn = $('#vidPlayPauseBtn');
+  const vidPlayIcon = $('#vidPlayIcon');
+  const vidMuteBtn = $('#vidMuteBtn');
+  const vidMuteIcon = $('#vidMuteIcon');
+  const vidVolumeSlider = $('#vidVolumeSlider');
+  const vidFullscreenBtn = $('#vidFullscreenBtn');
+  const vidProgressContainer = $('#vidProgressContainer');
+  const vidProgressBar = $('#vidProgressBar');
+  const vidTimeDisplay = $('#vidTimeDisplay');
 
   const imageModal = $('#imageModal');
   const modalImage = $('#modalImage');
@@ -120,6 +132,83 @@
           item.style.display = match ? '' : 'none';
         });
       });
+    });
+  }
+
+  // التحكم الكامل في الفيديو وشريط التحكم السفلي
+  if (platformVideo) {
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    const togglePlay = () => {
+      if (platformVideo.paused) {
+        platformVideo.play().then(() => {
+          if (vidPlayIcon) vidPlayIcon.className = 'fa-solid fa-pause';
+        }).catch(() => {});
+      } else {
+        platformVideo.pause();
+        if (vidPlayIcon) vidPlayIcon.className = 'fa-solid fa-play';
+      }
+    };
+
+    vidPlayPauseBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePlay();
+    });
+
+    platformVideo.addEventListener('click', () => {
+      togglePlay();
+    });
+
+    platformVideo.addEventListener('timeupdate', () => {
+      if (!platformVideo.duration) return;
+      const progressPercent = (platformVideo.currentTime / platformVideo.duration) * 100;
+      if (vidProgressBar) vidProgressBar.style.width = `${progressPercent}%`;
+      if (vidTimeDisplay) {
+        vidTimeDisplay.textContent = `${formatTime(platformVideo.currentTime)} / ${formatTime(platformVideo.duration)}`;
+      }
+    });
+
+    vidProgressContainer?.addEventListener('click', (e) => {
+      const rect = vidProgressContainer.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const width = rect.width;
+      if (platformVideo.duration) {
+        platformVideo.currentTime = (clickX / width) * platformVideo.duration;
+      }
+    });
+
+    vidMuteBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      platformVideo.muted = !platformVideo.muted;
+      if (vidMuteIcon) vidMuteIcon.className = platformVideo.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+      if (vidVolumeSlider) vidVolumeSlider.value = platformVideo.muted ? 0 : platformVideo.volume;
+    });
+
+    vidVolumeSlider?.addEventListener('input', (e) => {
+      e.stopPropagation();
+      const val = parseFloat(e.target.value);
+      platformVideo.volume = val;
+      platformVideo.muted = val === 0;
+      if (vidMuteIcon) vidMuteIcon.className = val === 0 ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+    });
+
+    vidFullscreenBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cardContainer = platformVideo.closest('.update-card');
+      if (!document.fullscreenElement) {
+        cardContainer?.requestFullscreen?.().catch(() => {});
+        showToast('عرض الفيديو بملء الشاشة');
+      } else {
+        document.exitFullscreen?.();
+      }
+    });
+
+    platformVideo.addEventListener('ended', () => {
+      if (vidPlayIcon) vidPlayIcon.className = 'fa-solid fa-play';
     });
   }
 

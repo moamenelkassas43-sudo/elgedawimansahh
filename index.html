@@ -71,12 +71,12 @@
         </div>
 
         <div>
-          <label class="field-label" for="studentGender">لون المنصة</label>
+          <label class="field-label" for="studentGender">النوع</label>
           <div class="select-wrap">
-            <i class="fa-solid fa-palette"></i>
-            <select id="studentGender" name="gender">
-              <option value="male">أزرق ملكي</option>
-              <option value="female">وردي راقٍ</option>
+            <i class="fa-solid fa-venus-mars"></i>
+            <select id="studentGender" name="gender" required>
+              <option value="male">ولد (أزرق ملكي)</option>
+              <option value="female">بنت (وردي راقٍ)</option>
             </select>
           </div>
         </div>
@@ -275,7 +275,9 @@
 
       <div class="updates-grid">
         <article class="update-card reveal">
-          <div class="update-art art-news"><i class="fa-regular fa-newspaper"></i><span>NEWS & NOTES</span></div>
+          <div class="update-art art-news" style="padding: 0; overflow: hidden;">
+            <img src="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg" alt="آخر الأخبار" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          </div>
           <div class="update-body">
             <span class="update-tag">الأخبار</span>
             <h3>تابع إعلانات المنصة</h3>
@@ -332,4 +334,4 @@
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script src="script.js" defer></script>
 </body>
-        </html>
+</html>

@@ -19,7 +19,7 @@
   const themeToggleBtn = $('#themeToggleBtn');
   const themeIcon = $('#themeIcon');
   
-  // مشغل الفيديو الحقيقي والتحكم الشامل
+  // مشغل الفيديو الحقيقي وتفعيل أدوات التحكم
   const platformVideo = $('#platformVideo');
   const vidPlayPauseBtn = $('#vidPlayPauseBtn');
   const vidPlayIcon = $('#vidPlayIcon');
@@ -76,7 +76,7 @@
     if (btn) triggerHaptic();
   });
 
-  // إدارة المفضلة
+  // إدارة المفضلة والحفظ
   function setupFavorites() {
     let savedFavs = [];
     try {
@@ -135,7 +135,7 @@
     });
   }
 
-  // التحكم الكامل والحقيقي في مشغل الفيديو (تشغيل، إيقاف، صوت، شريط تقدم، ملء الشاشة)
+  // التحكم الحقيقي والفوري في مشغل الفيديو
   if (platformVideo) {
     function formatTime(seconds) {
       const mins = Math.floor(seconds / 60);

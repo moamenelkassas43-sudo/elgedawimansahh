@@ -75,8 +75,8 @@
           <div class="select-wrap">
             <i class="fa-solid fa-venus-mars"></i>
             <select id="studentGender" name="gender" required>
-              <option value="male">ولد (أزرق ملكي)</option>
-              <option value="female">بنت (وردي راقٍ)</option>
+              <option value="male">ولد (💙)</option>
+              <option value="female">بنت (💕)</option>
             </select>
           </div>
         </div>
@@ -275,8 +275,12 @@
 
       <div class="updates-grid">
         <article class="update-card reveal">
-          <div class="update-art art-news" style="padding: 0; overflow: hidden;">
-            <img src="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg" alt="آخر الأخبار" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          <div class="update-art art-news" style="padding: 0; overflow: hidden; position: relative;">
+            <span class="pulse-badge" title="صورة جديدة"></span>
+            <img src="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg" alt="آخر الأخبار" class="zoomable-image" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <button type="button" class="view-image-btn" data-img="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg">
+              <i class="fa-solid fa-expand"></i> اضغط للعرض
+            </button>
           </div>
           <div class="update-body">
             <span class="update-tag">الأخبار</span>
@@ -329,6 +333,15 @@
     <p>التاريخ وعيٌ بالماضي، وبصيرةٌ للمستقبل.</p>
     <span>© <span id="currentYear">2026</span> منصة تاريخ الرقي · إشراف الأستاذ محمد الجداوي</span>
   </footer>
+</div>
+
+<!-- Modal  مضئ لعرض الصورة المكبرة بوضوح  -->
+<div id="imageModal" class="image-modal hidden">
+  <div class="image-modal-backdrop"></div>
+  <div class="image-modal-content">
+    <button id="closeModalBtn" class="close-modal-btn" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+    <img id="modalImage" src="" alt="صورة مكبرة">
+  </div>
 </div>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>

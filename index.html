@@ -20,7 +20,7 @@
 <canvas id="particlesCanvas" aria-hidden="true"></canvas>
 <div class="noise-layer" aria-hidden="true"></div>
 
-<!-- واجهة تسجيل الدخول المجددة والمرتبة بسلاسة عالية -->
+<!-- واجهة تسجيل الدخول -->
 <section id="authModal" class="auth-shell" aria-labelledby="authTitle">
   <div class="auth-card glass reveal">
     <div class="auth-topline">
@@ -129,7 +129,6 @@
         </span>
       </a>
 
-      <!-- شريط التنقل العلوي مفعل بالكامل -->
       <nav class="desktop-nav" aria-label="التنقل الرئيسي">
         <a class="nav-link active" href="#home"><i class="fa-solid fa-house"></i> الرئيسية</a>
         <a class="nav-link" href="#learning"><i class="fa-solid fa-compass"></i> محتوى المنصة</a>
@@ -138,11 +137,9 @@
       </nav>
 
       <div class="header-actions">
-        <!-- زر تبديل الوضع النهاري / الليلي -->
         <button id="themeToggleBtn" class="icon-btn haptic-btn" aria-label="تبديل الوضع النهاري والليلي" title="الوضع النهاري/الليلي">
           <i class="fa-solid fa-sun" id="themeIcon"></i>
         </button>
-        <!-- زر الجرس مع عداد الإشعارات -->
         <button id="bellBtn" class="icon-btn notification-trigger haptic-btn" aria-label="فتح التنبيهات" aria-expanded="false">
           <i class="fa-regular fa-bell"></i><span id="notifBadge" class="notification-badge">0</span>
         </button>
@@ -234,7 +231,7 @@
       </div>
     </section>
 
-    <!-- مساحات المعرفة مع البحث والحفظ (المفضلة وإعجاب العناصر) -->
+    <!-- مساحات المعرفة -->
     <section id="learning" class="content-section page-section">
       <div class="section-heading reveal">
         <div>
@@ -287,7 +284,7 @@
       </div>
     </section>
 
-    <!-- قسم المستجدات والأخبار (مع إضافة فيديو Streamable والتحكم الكامل وعرض ملء الشاشة) -->
+    <!-- قسم المستجدات والأخبار (مع مشغل الفيديو السريع والخالي من التهنيج) -->
     <section id="updates" class="updates-section page-section">
       <div class="section-heading reveal">
         <div>
@@ -322,16 +319,35 @@
           </div>
         </article>
 
-        <!-- بطاقة الفيديو المضافة من Streamable مع مهارات العرض الكامل والتحكم -->
+        <!-- مشغل الفيديو السريع والخالي تماماً من التهنيج (خادم حقيقي HTML5) -->
         <article class="update-card reveal searchable-item" data-title="مكتبة الشرح والمراجعة والفيديو التعليمي">
           <div class="update-art art-video" style="padding: 0; height: 210px; position: relative; background: #000;">
             <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
-            <iframe src="https://streamable.com/e/er34e0?autoplay=0&muted=0" allow="fullscreen" allowfullscreen style="width:100%; height:100%; border:none;" title="فيديو المنصة التعليمي"></iframe>
+            
+            <video id="platformVideo" class="custom-video-player" preload="metadata" playsinline poster="https://i.postimg.cc/j2c4vzD6/IMG-20261028-041451.png">
+              <source src="https://cdn.streamable.com/video/mp4/er34e0.mp4" type="video/mp4">
+              متصفحك لا يدعم تشغيل الفيديو.
+            </video>
+
+            <!-- أزرار تحكم الفيديو السريعة والناعمة -->
+            <div class="video-overlay-controls" id="videoOverlayControls">
+              <button type="button" id="videoPlayPauseBtn" class="vid-ctrl-btn haptic-btn" title="تشغيل / إيقاف">
+                <i class="fa-solid fa-play" id="vidPlayIcon"></i>
+              </button>
+              <div class="vid-right-tools">
+                <button type="button" id="videoMuteBtn" class="vid-ctrl-btn haptic-btn" title="كتم / إلغاء الكتم">
+                  <i class="fa-solid fa-volume-high" id="vidMuteIcon"></i>
+                </button>
+                <button type="button" id="videoFullscreenBtn" class="vid-ctrl-btn haptic-btn" title="ملء الشاشة">
+                  <i class="fa-solid fa-expand"></i>
+                </button>
+              </div>
+            </div>
           </div>
           <div class="update-body">
             <span class="update-tag blue-tag">الفيديوهات</span>
             <h3>مكتبة الشرح والمراجعة</h3>
-            <p>شاهد الشرح التعليمي الجديد بالتحكم الكامل في التشغيل والصوت وعرض ملء الشاشة.</p>
+            <p>شاهد الشرح التعليمي الجديد بالتحكم الكامل والسرعة الفائقة من أول ضغطة وبدون أي تهنيج.</p>
             <div class="update-meta"><span><i class="fa-regular fa-circle-play"></i> محتوى مرئي</span><span>02</span></div>
           </div>
         </article>
@@ -374,7 +390,7 @@
   </footer>
 </div>
 
-<!-- العارض المطور للصورة (مع خيار التنزيل الحقيقي، ملء الشاشة، الجودة والتدوير) -->
+<!-- العارض المطور للصورة -->
 <div id="imageModal" class="image-modal hidden">
   <div class="image-modal-backdrop"></div>
   <div class="image-modal-content">

@@ -15,12 +15,13 @@
   const logoutBtn = $('#logoutBtn');
   const mobileMenuBtn = $('#mobileMenuBtn');
   const mobileNav = $('#mobileNav');
+  const imageModal = $('#imageModal');
+  const modalImage = $('#modalImage');
+  const closeModalBtn = $('#closeModalBtn');
 
   const STORAGE_KEY = 'tareekh_alroqi_profile_v2';
   let toastTimer;
 
-  // هذه النسخة تعمل كمعاينة محلية.
-  // لتفعيل حسابات حقيقية، يلزم إنشاء خادم API آمن وتوصيله هنا.
   const API_BASE = '';
 
   function setTheme(gender) {
@@ -31,10 +32,8 @@
 
   function showToast(message) {
     if (!toast) return;
-
     toast.textContent = message;
     toast.classList.add('show');
-
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => {
       toast.classList.remove('show');
@@ -111,7 +110,6 @@
     $('#displayName').textContent = profile.name;
     $('#displayGrade').textContent = profile.grade;
     $('#displayUniqueCode').textContent = profile.code || 'جلسة محلية';
-
     setTheme(profile.gender);
   }
 
@@ -145,7 +143,6 @@
 
   function openApp(profile) {
     renderProfile(profile);
-
     authModal.classList.add('is-leaving');
 
     setTimeout(() => {
@@ -171,27 +168,6 @@
     setAuthMessage('');
   }
 
-  async function submitToServer(profile) {
-    if (!API_BASE) return null;
-
-    const response = await fetch(`${API_BASE}/auth/register-or-login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify(profile)
-    });
-
-    const result = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(result.message || 'تعذّر تسجيل الدخول. حاول مرة أخرى.');
-    }
-
-    return result;
-  }
-
   loginForm?.addEventListener('submit', async event => {
     event.preventDefault();
     setAuthMessage('');
@@ -211,33 +187,18 @@
         gender: genderSelect.value
       });
 
-      const serverResult = await submitToServer(profile);
+      const localProfile = {
+        ...profile,
+        code: makeSessionCode(),
+        mode: 'local-preview'
+      };
 
-      if (API_BASE) {
-        const safeProfile = serverResult?.profile;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(localProfile));
+      } catch (_) {}
 
-        if (!safeProfile) {
-          throw new Error('استجابة الخادم غير مكتملة.');
-        }
-
-        openApp(safeProfile);
-      } else {
-        // وضع معاينة محلي مع حفظ الدخول في الذاكرة الدائمة (localStorage)
-        const localProfile = {
-          ...profile,
-          code: makeSessionCode(),
-          mode: 'local-preview'
-        };
-
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(localProfile));
-        } catch (_) {
-          // يستمر العرض حتى لو كان التخزين غير متاح.
-        }
-
-        openApp(localProfile);
-        showToast('تم حفظ تسجيل الدخول بنجاح.');
-      }
+      openApp(localProfile);
+      showToast('تم حفظ تسجيل الدخول بنجاح.');
     } catch (error) {
       setAuthMessage(error.message || 'حدث خطأ غير متوقع.');
     } finally {
@@ -254,33 +215,41 @@
     if (!confirm('هل تريد إنهاء الجلسة الحالية وتسجيل الخروج؟')) return;
 
     try {
-      if (API_BASE) {
-        await fetch(`${API_BASE}/auth/logout`, {
-          method: 'POST',
-          credentials: 'include'
-        });
-      }
-
       localStorage.removeItem(STORAGE_KEY);
-    } catch (_) {
-      // لا نعرض تفاصيل تقنية للمستخدم.
-    }
+    } catch (_) {}
 
     closeApp();
     showToast('تم تسجيل الخروج بنجاح.');
   });
 
-  bellBtn?.addEventListener('click', event => {
-    event.stopPropagation();
-
-    const willOpen = notificationsDropdown.classList.contains('hidden');
-
-    notificationsDropdown.classList.toggle('hidden', !willOpen);
-    bellBtn.setAttribute('aria-expanded', String(willOpen));
+  // تفاعل فتح وإغلاق الصورة المكبرة (Modal)
+  document.addEventListener('click', event => {
+    const btn = event.target.closest('.view-image-btn') || event.target.closest('.zoomable-image');
+    if (btn) {
+      const imgSrc = btn.dataset?.img || btn.src;
+      if (imgSrc && modalImage && imageModal) {
+        modalImage.src = imgSrc;
+        imageModal.classList.remove('hidden');
+      }
+    }
   });
 
-  notificationsDropdown?.addEventListener('click', event => {
+  const closeImageModal = () => {
+    if (imageModal) imageModal.classList.add('hidden');
+  };
+
+  closeModalBtn?.addEventListener('click', closeImageModal);
+  imageModal?.addEventListener('click', event => {
+    if (event.target === imageModal || event.target.classList.contains('image-modal-backdrop')) {
+      closeImageModal();
+    }
+  });
+
+  bellBtn?.addEventListener('click', event => {
     event.stopPropagation();
+    const willOpen = notificationsDropdown.classList.contains('hidden');
+    notificationsDropdown.classList.toggle('hidden', !willOpen);
+    bellBtn.setAttribute('aria-expanded', String(willOpen));
   });
 
   document.addEventListener('click', () => {
@@ -290,12 +259,9 @@
 
   mobileMenuBtn?.addEventListener('click', event => {
     event.stopPropagation();
-
     const willOpen = mobileNav.classList.contains('hidden');
-
     mobileNav.classList.toggle('hidden', !willOpen);
     mobileMenuBtn.setAttribute('aria-expanded', String(willOpen));
-
     mobileMenuBtn.innerHTML = willOpen
       ? '<i class="fa-solid fa-xmark"></i>'
       : '<i class="fa-solid fa-bars"></i>';
@@ -305,35 +271,11 @@
     link.addEventListener('click', () => {
       mobileNav.classList.add('hidden');
       mobileMenuBtn?.setAttribute('aria-expanded', 'false');
-
       if (mobileMenuBtn) {
         mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
       }
     });
   });
-
-  // تحديث رابط القسم النشط في القائمة.
-  if ('IntersectionObserver' in window) {
-    const sectionObserver = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-
-        $$('.nav-link').forEach(link => {
-          link.classList.toggle(
-            'active',
-            link.getAttribute('href') === `#${entry.target.id}`
-          );
-        });
-      });
-    }, {
-      rootMargin: '-30% 0px -60% 0px'
-    });
-
-    ['home', 'learning', 'updates', 'community'].forEach(id => {
-      const section = document.getElementById(id);
-      if (section) sectionObserver.observe(section);
-    });
-  }
 
   const yearElement = $('#currentYear');
   if (yearElement) {
@@ -343,28 +285,17 @@
   setTheme('male');
   setupReveal();
 
-  // استعادة الجلسة المحفوظة تلقائياً (LocalStorage)
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-
     if (saved) {
       const profile = JSON.parse(saved);
-
-      if (
-        profile &&
-        profile.mode === 'local-preview' &&
-        typeof profile.name === 'string' &&
-        typeof profile.grade === 'string' &&
-        ['male', 'female'].includes(profile.gender)
-      ) {
+      if (profile && profile.mode === 'local-preview' && profile.name) {
         openApp(profile);
       } else {
         localStorage.removeItem(STORAGE_KEY);
       }
     }
   } catch (_) {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (_) {}
+    localStorage.removeItem(STORAGE_KEY);
   }
 })();

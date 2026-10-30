@@ -312,7 +312,7 @@ button{cursor:pointer}
 }
 .section-search-input::placeholder{color:var(--muted)}
 
-/* أزرار المفضلة والحفظ وإعجاب العناصر في جميع الأقسام */
+/* أزرار المفضلة والحفظ */
 .card-top-actions{position:absolute;top:15px;left:15px;z-index:4}
 .favorite-btn{
   width:32px;height:32px;border-radius:50%;
@@ -334,7 +334,6 @@ button{cursor:pointer}
   background:var(--gold);color:#09111e;border-color:var(--gold);transform:scale(1.08);
 }
 
-/* عداد الإشعارات على الجرس */
 .notification-badge{
   position:absolute;top:5px;right:5px;
   background:#ff4757;color:#fff;font-size:9px;font-weight:800;
@@ -342,7 +341,6 @@ button{cursor:pointer}
   box-shadow:0 0 8px rgba(255,71,87,0.7);
 }
 
-/* النقاط الحمراء النابضة */
 .pulse-badge{
   position:absolute;top:12px;right:12px;width:13px;height:13px;
   background-color:#ff4757;border-radius:50%;z-index:5;

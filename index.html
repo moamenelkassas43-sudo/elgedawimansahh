@@ -284,7 +284,7 @@
       </div>
     </section>
 
-    <!-- قسم المستجدات والأخبار (مع مشغل الفيديو السريع والخالي من التهنيج) -->
+    <!-- قسم المستجدات والأخبار (مشغل الفيديو الحقيقي والاحترافي مع شريط تحكم كامل) -->
     <section id="updates" class="updates-section page-section">
       <div class="section-heading reveal">
         <div>
@@ -319,35 +319,45 @@
           </div>
         </article>
 
-        <!-- مشغل الفيديو السريع والخالي تماماً من التهنيج (خادم حقيقي HTML5) -->
+        <!-- مشغل الفيديو الحقيقي الاحترافي والمتطور -->
         <article class="update-card reveal searchable-item" data-title="مكتبة الشرح والمراجعة والفيديو التعليمي">
-          <div class="update-art art-video" style="padding: 0; height: 210px; position: relative; background: #000;">
+          <div class="update-art art-video" style="padding: 0; height: 215px; position: relative; background: #000; overflow:hidden;">
             <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
             
-            <video id="platformVideo" class="custom-video-player" preload="metadata" playsinline poster="https://i.postimg.cc/j2c4vzD6/IMG-20261028-041451.png">
-              <source src="https://cdn.streamable.com/video/mp4/er34e0.mp4" type="video/mp4">
+            <!-- عنصر الفيديو الحقيقي مع رابط مباشر خادم CDN سريع جداً -->
+            <video id="platformVideo" class="custom-video-player" preload="auto" playsinline>
+              <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
               متصفحك لا يدعم تشغيل الفيديو.
             </video>
 
-            <!-- أزرار تحكم الفيديو السريعة والناعمة -->
-            <div class="video-overlay-controls" id="videoOverlayControls">
-              <button type="button" id="videoPlayPauseBtn" class="vid-ctrl-btn haptic-btn" title="تشغيل / إيقاف">
-                <i class="fa-solid fa-play" id="vidPlayIcon"></i>
-              </button>
-              <div class="vid-right-tools">
-                <button type="button" id="videoMuteBtn" class="vid-ctrl-btn haptic-btn" title="كتم / إلغاء الكتم">
-                  <i class="fa-solid fa-volume-high" id="vidMuteIcon"></i>
-                </button>
-                <button type="button" id="videoFullscreenBtn" class="vid-ctrl-btn haptic-btn" title="ملء الشاشة">
-                  <i class="fa-solid fa-expand"></i>
-                </button>
+            <!-- لوحة التحكم الكاملة والحقيقية للفيديو -->
+            <div class="video-custom-controls" id="videoCustomControls">
+              <div class="vid-progress-container" id="vidProgressContainer">
+                <div class="vid-progress-bar" id="vidProgressBar"></div>
+              </div>
+              <div class="vid-controls-row">
+                <div class="vid-left-group">
+                  <button type="button" id="vidPlayPauseBtn" class="vid-btn haptic-btn" title="تشغيل / إيقاف">
+                    <i class="fa-solid fa-play" id="vidPlayIcon"></i>
+                  </button>
+                  <span class="vid-time" id="vidTimeDisplay">0:00 / 0:00</span>
+                </div>
+                <div class="vid-right-group">
+                  <button type="button" id="vidMuteBtn" class="vid-btn haptic-btn" title="كتم الصوت">
+                    <i class="fa-solid fa-volume-high" id="vidMuteIcon"></i>
+                  </button>
+                  <input type="range" id="vidVolumeSlider" class="vid-volume-slider" min="0" max="1" step="0.05" value="1" title="مستوى الصوت">
+                  <button type="button" id="vidFullscreenBtn" class="vid-btn haptic-btn" title="ملء الشاشة بالكامل">
+                    <i class="fa-solid fa-expand"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
           <div class="update-body">
             <span class="update-tag blue-tag">الفيديوهات</span>
             <h3>مكتبة الشرح والمراجعة</h3>
-            <p>شاهد الشرح التعليمي الجديد بالتحكم الكامل والسرعة الفائقة من أول ضغطة وبدون أي تهنيج.</p>
+            <p>مشغل فيديو احترافي وخادم حقيقي، تشغيل وإيقاف فوري، تحكم تام بالصوت، ووضع ملء الشاشة.</p>
             <div class="update-meta"><span><i class="fa-regular fa-circle-play"></i> محتوى مرئي</span><span>02</span></div>
           </div>
         </article>

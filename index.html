@@ -142,7 +142,7 @@
         <button id="themeToggleBtn" class="icon-btn haptic-btn" aria-label="تبديل الوضع النهاري والليلي" title="الوضع النهاري/الليلي">
           <i class="fa-solid fa-sun" id="themeIcon"></i>
         </button>
-        <!-- زر الجرس مع عداد الإشعارات القابل للتخصيص -->
+        <!-- زر الجرس مع عداد الإشعارات -->
         <button id="bellBtn" class="icon-btn notification-trigger haptic-btn" aria-label="فتح التنبيهات" aria-expanded="false">
           <i class="fa-regular fa-bell"></i><span id="notifBadge" class="notification-badge">0</span>
         </button>
@@ -161,7 +161,6 @@
         <span class="panel-status" id="notifStatusText">لا توجد إشعارات جديدة</span>
       </div>
       <div id="notificationsListContainer">
-        <!-- يتم تحديث الإشعارات بناءً على ما تحدده فقط -->
         <p class="panel-footnote">لا توجد أي إشعارات مضافة حالياً.</p>
       </div>
     </div>
@@ -288,7 +287,7 @@
       </div>
     </section>
 
-    <!-- قسم المستجدات والأخبار (مع تنزيل الصورة الحقيقية وملء الشاشة، والحفظ، والبحث) -->
+    <!-- قسم المستجدات والأخبار (مع إضافة فيديو Streamable والتحكم الكامل وعرض ملء الشاشة) -->
     <section id="updates" class="updates-section page-section">
       <div class="section-heading reveal">
         <div>
@@ -323,15 +322,16 @@
           </div>
         </article>
 
-        <article class="update-card reveal searchable-item" data-title="مكتبة الشرح والمراجعة">
-          <div class="update-art art-video" style="position:relative;">
-            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب"><i class="fa-regular fa-bookmark"></i></button>
-            <i class="fa-solid fa-play"></i><span>VIDEO LIBRARY</span>
+        <!-- بطاقة الفيديو المضافة من Streamable مع مهارات العرض الكامل والتحكم -->
+        <article class="update-card reveal searchable-item" data-title="مكتبة الشرح والمراجعة والفيديو التعليمي">
+          <div class="update-art art-video" style="padding: 0; height: 210px; position: relative; background: #000;">
+            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
+            <iframe src="https://streamable.com/e/er34e0?autoplay=0&muted=0" allow="fullscreen" allowfullscreen style="width:100%; height:100%; border:none;" title="فيديو المنصة التعليمي"></iframe>
           </div>
           <div class="update-body">
             <span class="update-tag blue-tag">الفيديوهات</span>
             <h3>مكتبة الشرح والمراجعة</h3>
-            <p>واجهة مهيأة لعرض روابط الفيديوهات والدروس وتصنيفها.</p>
+            <p>شاهد الشرح التعليمي الجديد بالتحكم الكامل في التشغيل والصوت وعرض ملء الشاشة.</p>
             <div class="update-meta"><span><i class="fa-regular fa-circle-play"></i> محتوى مرئي</span><span>02</span></div>
           </div>
         </article>

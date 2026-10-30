@@ -20,13 +20,16 @@
   const themeIcon = $('#themeIcon');
   const imageModal = $('#imageModal');
   const modalImage = $('#modalImage');
+  const modalImgContainerBox = $('#modalImgContainerBox');
   const closeModalBtn = $('#closeModalBtn');
   const rotateImgBtn = $('#rotateImgBtn');
+  const downloadImgBtn = $('#downloadImgBtn');
+  const fullscreenImgBtn = $('#fullscreenImgBtn');
   const qualityBtns = $$('.q-btn');
   const particlesCanvas = $('#particlesCanvas');
 
   const STORAGE_KEY = 'tareekh_alroqi_profile_v2';
-  const FAVORITES_KEY = 'tareekh_alroqi_favorites';
+  const FAVORITES_KEY = 'tareekh_alroqi_favorites_v2';
   let toastTimer;
   let activeImgSrc = '';
   let currentRotation = 0;
@@ -49,7 +52,7 @@
     } catch (_) {}
   }
 
-  // تأثير الاهتزاز (Haptic Feedback) والصوت
+  // تأثير الاهتزاز والصوت
   function triggerHaptic() {
     if (navigator.vibrate) {
       try { navigator.vibrate(35); } catch (_) {}
@@ -62,7 +65,7 @@
     if (btn) triggerHaptic();
   });
 
-  // إدارة المفضلة (الحفظ) في جميع الأقسام
+  // إدارة المفضلة والحفظ في جميع الأقسام وعند دخول القسم وفرز العناصر
   function setupFavorites() {
     let savedFavs = [];
     try {
@@ -91,10 +94,10 @@
           let current = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
           if (isFav) {
             if (!current.includes(title)) current.push(title);
-            showToast(`تم حفظ "${title}" في المفضلة`);
+            showToast(`تم الحفظ والإعجاب بـ "${title}"`);
           } else {
             current = current.filter(t => t !== title);
-            showToast(`تمت الإزالة من المفضلة`);
+            showToast(`تمت الإزالة من المحفوظات`);
           }
           localStorage.setItem(FAVORITES_KEY, JSON.stringify(current));
         } catch (_) {}
@@ -112,12 +115,10 @@
         if (!container) return;
 
         const items = container.querySelectorAll('.searchable-item');
-        let foundCount = 0;
         items.forEach(item => {
           const title = (item.dataset.title || item.querySelector('h3')?.textContent || '').toLowerCase();
           const match = title.includes(query);
           item.style.display = match ? '' : 'none';
-          if (match) foundCount++;
         });
       });
     });
@@ -340,7 +341,7 @@
     showToast('تم تسجيل الخروج.');
   });
 
-  // تفاعل عرض وتكبير الصورة
+  // تفاعل عرض الصورة وملء الشاشة وتنزيل الصورة الحقيقية
   document.addEventListener('click', event => {
     const btn = event.target.closest('.view-image-btn') || event.target.closest('.zoomable-image');
     if (btn) {
@@ -357,6 +358,30 @@
   rotateImgBtn?.addEventListener('click', () => {
     currentRotation = (currentRotation + 90) % 360;
     if (modalImage) modalImage.style.transform = `rotate(${currentRotation}deg)`;
+  });
+
+  // زر تنزيل الصورة الحقيقية
+  downloadImgBtn?.addEventListener('click', () => {
+    if (!activeImgSrc) return;
+    const a = document.createElement('a');
+    a.href = activeImgSrc;
+    a.download = 'tareekh-alroqi-image.jpg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('جارٍ تنزيل الصورة الحقيقية...');
+  });
+
+  // زر ملء الشاشة بالكامل للعارض
+  fullscreenImgBtn?.addEventListener('click', () => {
+    if (modalImgContainerBox) {
+      if (!document.fullscreenElement) {
+        modalImgContainerBox.requestFullscreen?.().catch(() => {});
+        showToast('تم التفعيل لوضع ملء الشاشة');
+      } else {
+        document.exitFullscreen?.();
+      }
+    }
   });
 
   qualityBtns.forEach(qBtn => {
@@ -387,15 +412,12 @@
     }
   });
 
-  // الجرس والإشعارات (إخفاء العداد عند الفتح)
+  // الجرس والإشعارات (مطابق تماماً لما تحدده بدون زيادة)
   bellBtn?.addEventListener('click', event => {
     event.stopPropagation();
     const willOpen = notificationsDropdown.classList.contains('hidden');
     notificationsDropdown.classList.toggle('hidden', !willOpen);
     bellBtn.setAttribute('aria-expanded', String(willOpen));
-    if (willOpen && notifBadge) {
-      notifBadge.style.display = 'none';
-    }
   });
 
   document.addEventListener('click', () => {

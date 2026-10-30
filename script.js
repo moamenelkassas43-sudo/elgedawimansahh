@@ -19,7 +19,7 @@
   const themeToggleBtn = $('#themeToggleBtn');
   const themeIcon = $('#themeIcon');
   
-  // مشغل الفيديو الحقيقي وأزرار التحكم السفلیة
+  // مشغل الفيديو الحقيقي وأزرار التحكم السفلي
   const platformVideo = $('#platformVideo');
   const vidPlayPauseBtn = $('#vidPlayPauseBtn');
   const vidPlayIcon = $('#vidPlayIcon');
@@ -76,7 +76,6 @@
     if (btn) triggerHaptic();
   });
 
-  // إدارة المفضلة والحفظ
   function setupFavorites() {
     let savedFavs = [];
     try {
@@ -116,7 +115,6 @@
     });
   }
 
-  // البحث الفوري
   function setupSearch() {
     $$('.section-search-input').forEach(input => {
       input.addEventListener('input', e => {

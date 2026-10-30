@@ -68,7 +68,7 @@
             <select id="studentGrade" name="grade" required>
               <option value="الأول الثانوي">الأول الثانوي</option>
               <option value="الثاني الثانوي">الثاني الثانوي</option>
-              <option value="البكالوريا الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا😎)</option>
+              <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا)</option>
               <option value="الثالث الثانوي">الثالث الثانوي</option>
             </select>
           </div>
@@ -79,8 +79,8 @@
           <div class="select-wrap">
             <i class="fa-solid fa-venus-mars"></i>
             <select id="studentGender" name="gender" required>
-              <option value="male">ولد (💙)</option>
-              <option value="female">بنت (💕)</option>
+              <option value="male">ولد (أزرق ملكي)</option>
+              <option value="female">بنت (وردي راقٍ)</option>
             </select>
           </div>
         </div>
@@ -142,9 +142,9 @@
         <button id="themeToggleBtn" class="icon-btn haptic-btn" aria-label="تبديل الوضع النهاري والليلي" title="الوضع النهاري/الليلي">
           <i class="fa-solid fa-sun" id="themeIcon"></i>
         </button>
-        <!-- زر الجرس مع عداد الإشعارات التفاعلي -->
+        <!-- زر الجرس مع عداد الإشعارات القابل للتخصيص -->
         <button id="bellBtn" class="icon-btn notification-trigger haptic-btn" aria-label="فتح التنبيهات" aria-expanded="false">
-          <i class="fa-regular fa-bell"></i><span id="notifBadge" class="notification-badge">2</span>
+          <i class="fa-regular fa-bell"></i><span id="notifBadge" class="notification-badge">0</span>
         </button>
         <button id="logoutBtn" class="logout-btn haptic-btn">
           <i class="fa-solid fa-arrow-right-from-bracket"></i><span>خروج</span>
@@ -157,24 +157,13 @@
 
     <div id="notificationsDropdown" class="notification-panel hidden">
       <div class="panel-title">
-        <span><i class="fa-regular fa-bell"></i> مركز التنبيهات</span>
-        <span class="panel-status">2 إشعارات جديدة</span>
+        <span><i class="fa-regular fa-bell"></i> مركز الإشعارات</span>
+        <span class="panel-status" id="notifStatusText">لا توجد إشعارات جديدة</span>
       </div>
-      <div class="notification-item">
-        <span class="notification-icon"><i class="fa-solid fa-sparkles"></i></span>
-        <div>
-          <strong>تم إضافة صورة ومحتوى جديد</strong>
-          <p>راجع قسم المستجدات لتفقد آخر الصور والإعلانات.</p>
-        </div>
+      <div id="notificationsListContainer">
+        <!-- يتم تحديث الإشعارات بناءً على ما تحدده فقط -->
+        <p class="panel-footnote">لا توجد أي إشعارات مضافة حالياً.</p>
       </div>
-      <div class="notification-item" style="border-top:1px solid var(--line); margin-top:5px; padding-top:10px;">
-        <span class="notification-icon" style="background:rgba(217,183,106,.15); color:var(--gold);"><i class="fa-solid fa-book"></i></span>
-        <div>
-          <strong>جدول المراجعات الأسبوعية</strong>
-          <p>تم تحديث مواعيد البثوث والمراجعات النهائية.</p>
-        </div>
-      </div>
-      <p class="panel-footnote">تم تحديث الإشعارات تلقائياً اليوم.</p>
     </div>
 
     <nav id="mobileNav" class="mobile-nav hidden" aria-label="قائمة الهاتف">
@@ -246,7 +235,7 @@
       </div>
     </section>
 
-    <!-- مساحات المعرفة مع شريط البحث والفظلة في كل قسم -->
+    <!-- مساحات المعرفة مع البحث والحفظ (المفضلة وإعجاب العناصر) -->
     <section id="learning" class="content-section page-section">
       <div class="section-heading reveal">
         <div>
@@ -266,7 +255,7 @@
       <div id="learningGrid" class="feature-grid">
         <article class="feature-card reveal searchable-item" data-title="المحتوى الدراسي">
           <div class="card-top-actions">
-            <button type="button" class="favorite-btn haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+            <button type="button" class="favorite-btn haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
           </div>
           <div class="feature-top"><span class="feature-icon icon-amber"><i class="fa-solid fa-book-open-reader"></i></span><span class="feature-number">01</span></div>
           <p class="feature-label">LEARN & UNDERSTAND</p>
@@ -277,7 +266,7 @@
 
         <article class="feature-card reveal searchable-item" data-title="مكتبة الفيديو">
           <div class="card-top-actions">
-            <button type="button" class="favorite-btn haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+            <button type="button" class="favorite-btn haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
           </div>
           <div class="feature-top"><span class="feature-icon icon-blue"><i class="fa-solid fa-circle-play"></i></span><span class="feature-number">02</span></div>
           <p class="feature-label">WATCH & DISCOVER</p>
@@ -288,7 +277,7 @@
 
         <article class="feature-card reveal searchable-item" data-title="نصائح دراسية">
           <div class="card-top-actions">
-            <button type="button" class="favorite-btn haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+            <button type="button" class="favorite-btn haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
           </div>
           <div class="feature-top"><span class="feature-icon icon-violet"><i class="fa-solid fa-lightbulb"></i></span><span class="feature-number">03</span></div>
           <p class="feature-label">THINK & GROW</p>
@@ -299,7 +288,7 @@
       </div>
     </section>
 
-    <!-- قسم المستجدات والأخبار مع شريط البحث، المفضلة، النقطة الحمراء وزر العرض -->
+    <!-- قسم المستجدات والأخبار (مع تنزيل الصورة الحقيقية وملء الشاشة، والحفظ، والبحث) -->
     <section id="updates" class="updates-section page-section">
       <div class="section-heading reveal">
         <div>
@@ -320,10 +309,10 @@
         <article class="update-card reveal searchable-item" data-title="تابع إعلانات المنصة والصورة الجديدة">
           <div class="update-art art-news" style="padding: 0; overflow: hidden; position: relative;">
             <span class="pulse-badge" title="يوجد تحديث جديد!"></span>
-            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب"><i class="fa-regular fa-bookmark"></i></button>
             <img src="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg" alt="آخر الأخبار" class="zoomable-image" style="width: 100%; height: 100%; object-fit: cover; display: block;">
             <button type="button" class="view-image-btn haptic-btn" data-img="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg">
-              <i class="fa-solid fa-expand"></i> اضغط للعرض المكبر
+              <i class="fa-solid fa-expand"></i> عرض ملء الشاشة وتنزيل الصورة
             </button>
           </div>
           <div class="update-body">
@@ -336,7 +325,7 @@
 
         <article class="update-card reveal searchable-item" data-title="مكتبة الشرح والمراجعة">
           <div class="update-art art-video" style="position:relative;">
-            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب"><i class="fa-regular fa-bookmark"></i></button>
             <i class="fa-solid fa-play"></i><span>VIDEO LIBRARY</span>
           </div>
           <div class="update-body">
@@ -349,7 +338,7 @@
 
         <article id="studyTips" class="update-card reveal searchable-item" data-title="افهم العلاقة قبل حفظ التاريخ">
           <div class="update-art art-tips" style="position:relative;">
-            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ في المفضلة"><i class="fa-regular fa-bookmark"></i></button>
+            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب"><i class="fa-regular fa-bookmark"></i></button>
             <i class="fa-solid fa-brain"></i><span>STUDY SMARTER</span>
           </div>
           <div class="update-body">
@@ -385,22 +374,24 @@
   </footer>
 </div>
 
-<!-- العارض المطور للصورة (Lightbox مع خيارات الدقة، التدوير، والتكبير الكامل) -->
+<!-- العارض المطور للصورة (مع خيار التنزيل الحقيقي، ملء الشاشة، الجودة والتدوير) -->
 <div id="imageModal" class="image-modal hidden">
   <div class="image-modal-backdrop"></div>
   <div class="image-modal-content">
     <div class="modal-header-actions">
       <div class="quality-selector">
-        <button type="button" class="q-btn active haptic-btn" data-quality="hd">دقة عالية (HD)</button>
-        <button type="button" class="q-btn haptic-btn" data-quality="4k">دقة فائقة (4K)</button>
-        <button type="button" class="q-btn haptic-btn" data-quality="normal">دقة عادية</button>
+        <button type="button" class="q-btn active haptic-btn" data-quality="hd">عالية (HD)</button>
+        <button type="button" class="q-btn haptic-btn" data-quality="4k">فائقة (4K)</button>
+        <button type="button" class="q-btn haptic-btn" data-quality="normal">عادية</button>
       </div>
       <div class="modal-tools">
+        <button type="button" id="downloadImgBtn" class="tool-btn haptic-btn" title="تنزيل الصورة الحقيقية"><i class="fa-solid fa-download"></i></button>
         <button type="button" id="rotateImgBtn" class="tool-btn haptic-btn" title="تدوير الصورة"><i class="fa-solid fa-rotate-right"></i></button>
+        <button type="button" id="fullscreenImgBtn" class="tool-btn haptic-btn" title="ملء الشاشة بالكامل"><i class="fa-solid fa-expand"></i></button>
         <button id="closeModalBtn" class="close-modal-btn haptic-btn" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
       </div>
     </div>
-    <div class="modal-img-container">
+    <div class="modal-img-container" id="modalImgContainerBox">
       <img id="modalImage" src="" alt="صورة مكبرة">
     </div>
   </div>

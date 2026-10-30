@@ -19,13 +19,17 @@
   const themeToggleBtn = $('#themeToggleBtn');
   const themeIcon = $('#themeIcon');
   
-  // مشغل الفيديو الفائق السلاسة
+  // مشغل الفيديو الحقيقي والتحكم الشامل
   const platformVideo = $('#platformVideo');
-  const videoPlayPauseBtn = $('#videoPlayPauseBtn');
+  const vidPlayPauseBtn = $('#vidPlayPauseBtn');
   const vidPlayIcon = $('#vidPlayIcon');
-  const videoMuteBtn = $('#videoMuteBtn');
+  const vidMuteBtn = $('#vidMuteBtn');
   const vidMuteIcon = $('#vidMuteIcon');
-  const videoFullscreenBtn = $('#videoFullscreenBtn');
+  const vidVolumeSlider = $('#vidVolumeSlider');
+  const vidFullscreenBtn = $('#vidFullscreenBtn');
+  const vidProgressContainer = $('#vidProgressContainer');
+  const vidProgressBar = $('#vidProgressBar');
+  const vidTimeDisplay = $('#vidTimeDisplay');
 
   const imageModal = $('#imageModal');
   const modalImage = $('#modalImage');
@@ -72,7 +76,7 @@
     if (btn) triggerHaptic();
   });
 
-  // إدارة المفضلة والحفظ
+  // إدارة المفضلة
   function setupFavorites() {
     let savedFavs = [];
     try {
@@ -131,44 +135,72 @@
     });
   }
 
-  // تحكم مشغل الفيديو الفعلي السريع (يعمل من أول ضغطة وبدون تهنيج)
+  // التحكم الكامل والحقيقي في مشغل الفيديو (تشغيل، إيقاف، صوت، شريط تقدم، ملء الشاشة)
   if (platformVideo) {
-    videoPlayPauseBtn?.addEventListener('click', (e) => {
-      e.stopPropagation();
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    const togglePlay = () => {
       if (platformVideo.paused) {
         platformVideo.play().then(() => {
           vidPlayIcon.className = 'fa-solid fa-pause';
-          showToast('بدء التشغيل');
         }).catch(() => {});
       } else {
         platformVideo.pause();
         vidPlayIcon.className = 'fa-solid fa-play';
-        showToast('إيقاف مؤقت');
       }
+    };
+
+    vidPlayPauseBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePlay();
     });
 
     platformVideo.addEventListener('click', () => {
-      if (platformVideo.paused) {
-        platformVideo.play().then(() => {
-          vidPlayIcon.className = 'fa-solid fa-pause';
-        }).catch(() => {});
-      } else {
-        platformVideo.pause();
-        vidPlayIcon.className = 'fa-solid fa-play';
+      togglePlay();
+    });
+
+    platformVideo.addEventListener('timeupdate', () => {
+      if (!platformVideo.duration) return;
+      const progressPercent = (platformVideo.currentTime / platformVideo.duration) * 100;
+      if (vidProgressBar) vidProgressBar.style.width = `${progressPercent}%`;
+      if (vidTimeDisplay) {
+        vidTimeDisplay.textContent = `${formatTime(platformVideo.currentTime)} / ${formatTime(platformVideo.duration)}`;
       }
     });
 
-    videoMuteBtn?.addEventListener('click', (e) => {
+    vidProgressContainer?.addEventListener('click', (e) => {
+      const rect = vidProgressContainer.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const width = rect.width;
+      if (platformVideo.duration) {
+        platformVideo.currentTime = (clickX / width) * platformVideo.duration;
+      }
+    });
+
+    vidMuteBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       platformVideo.muted = !platformVideo.muted;
       vidMuteIcon.className = platformVideo.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
-      showToast(platformVideo.muted ? 'تم كتم الصوت' : 'تم تشغيل الصوت');
+      if (vidVolumeSlider) vidVolumeSlider.value = platformVideo.muted ? 0 : platformVideo.volume;
     });
 
-    videoFullscreenBtn?.addEventListener('click', (e) => {
+    vidVolumeSlider?.addEventListener('input', (e) => {
       e.stopPropagation();
+      const val = parseFloat(e.target.value);
+      platformVideo.volume = val;
+      platformVideo.muted = val === 0;
+      vidMuteIcon.className = val === 0 ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+    });
+
+    vidFullscreenBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const wrapper = platformVideo.closest('.update-art');
       if (!document.fullscreenElement) {
-        platformVideo.requestFullscreen?.().catch(() => {});
+        wrapper?.requestFullscreen?.().catch(() => {});
         showToast('عرض الفيديو بملء الشاشة');
       } else {
         document.exitFullscreen?.();
@@ -180,7 +212,6 @@
     });
   }
 
-  // خلفية النقاط المتحركة (Particles خفيفة ومحسنة للأداء)
   function initParticles() {
     if (!particlesCanvas) return;
     const ctx = particlesCanvas.getContext('2d');
@@ -192,7 +223,7 @@
       height = particlesCanvas.height = window.innerHeight;
     });
 
-    const particles = Array.from({ length: 25 }, () => ({
+    const particles = Array.from({ length: 22 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
       vx: (Math.random() - 0.5) * 0.4,
@@ -397,7 +428,6 @@
     showToast('تم تسجيل الخروج.');
   });
 
-  // تفاعل عرض الصورة وملء الشاشة
   document.addEventListener('click', event => {
     const btn = event.target.closest('.view-image-btn') || event.target.closest('.zoomable-image');
     if (btn) {

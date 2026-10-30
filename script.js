@@ -18,6 +18,15 @@
   const mobileNav = $('#mobileNav');
   const themeToggleBtn = $('#themeToggleBtn');
   const themeIcon = $('#themeIcon');
+  
+  // مشغل الفيديو الفائق السلاسة
+  const platformVideo = $('#platformVideo');
+  const videoPlayPauseBtn = $('#videoPlayPauseBtn');
+  const vidPlayIcon = $('#vidPlayIcon');
+  const videoMuteBtn = $('#videoMuteBtn');
+  const vidMuteIcon = $('#vidMuteIcon');
+  const videoFullscreenBtn = $('#videoFullscreenBtn');
+
   const imageModal = $('#imageModal');
   const modalImage = $('#modalImage');
   const modalImgContainerBox = $('#modalImgContainerBox');
@@ -34,7 +43,6 @@
   let activeImgSrc = '';
   let currentRotation = 0;
 
-  // تأثير الصوت التفاعلي (Web Audio API)
   function playClickSound() {
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -123,7 +131,56 @@
     });
   }
 
-  // خلفية النقاط المتحركة (Particles)
+  // تحكم مشغل الفيديو الفعلي السريع (يعمل من أول ضغطة وبدون تهنيج)
+  if (platformVideo) {
+    videoPlayPauseBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (platformVideo.paused) {
+        platformVideo.play().then(() => {
+          vidPlayIcon.className = 'fa-solid fa-pause';
+          showToast('بدء التشغيل');
+        }).catch(() => {});
+      } else {
+        platformVideo.pause();
+        vidPlayIcon.className = 'fa-solid fa-play';
+        showToast('إيقاف مؤقت');
+      }
+    });
+
+    platformVideo.addEventListener('click', () => {
+      if (platformVideo.paused) {
+        platformVideo.play().then(() => {
+          vidPlayIcon.className = 'fa-solid fa-pause';
+        }).catch(() => {});
+      } else {
+        platformVideo.pause();
+        vidPlayIcon.className = 'fa-solid fa-play';
+      }
+    });
+
+    videoMuteBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      platformVideo.muted = !platformVideo.muted;
+      vidMuteIcon.className = platformVideo.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+      showToast(platformVideo.muted ? 'تم كتم الصوت' : 'تم تشغيل الصوت');
+    });
+
+    videoFullscreenBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!document.fullscreenElement) {
+        platformVideo.requestFullscreen?.().catch(() => {});
+        showToast('عرض الفيديو بملء الشاشة');
+      } else {
+        document.exitFullscreen?.();
+      }
+    });
+
+    platformVideo.addEventListener('ended', () => {
+      vidPlayIcon.className = 'fa-solid fa-play';
+    });
+  }
+
+  // خلفية النقاط المتحركة (Particles خفيفة ومحسنة للأداء)
   function initParticles() {
     if (!particlesCanvas) return;
     const ctx = particlesCanvas.getContext('2d');
@@ -135,18 +192,18 @@
       height = particlesCanvas.height = window.innerHeight;
     });
 
-    const particles = Array.from({ length: 42 }, () => ({
+    const particles = Array.from({ length: 25 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.6,
-      vy: (Math.random() - 0.5) * 0.6,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
       radius: Math.random() * 2 + 1
     }));
 
     function animate() {
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = document.body.classList.contains('theme-female') ? 'rgba(241,124,181,0.28)' : 'rgba(108,168,255,0.25)';
-      ctx.strokeStyle = document.body.classList.contains('theme-female') ? 'rgba(241,124,181,0.08)' : 'rgba(108,168,255,0.08)';
+      ctx.fillStyle = document.body.classList.contains('theme-female') ? 'rgba(241,124,181,0.22)' : 'rgba(108,168,255,0.2)';
+      ctx.strokeStyle = document.body.classList.contains('theme-female') ? 'rgba(241,124,181,0.06)' : 'rgba(108,168,255,0.06)';
 
       particles.forEach((p, index) => {
         p.x += p.vx;
@@ -161,7 +218,7 @@
         for (let j = index + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 110) {
+          if (dist < 100) {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
@@ -270,7 +327,7 @@
 
     elements.forEach((el, index) => {
       if (!el.closest('#authModal')) {
-        el.style.transitionDelay = `${Math.min(index % 4, 3) * 70}ms`;
+        el.style.transitionDelay = `${Math.min(index % 4, 3) * 50}ms`;
         observer.observe(el);
       }
     });
@@ -286,7 +343,7 @@
       setupReveal();
       setupFavorites();
       setupSearch();
-    }, 260);
+    }, 200);
   }
 
   function closeApp() {
@@ -340,7 +397,7 @@
     showToast('تم تسجيل الخروج.');
   });
 
-  // تفاعل عرض الصورة وملء الشاشة وتنزيل الصورة
+  // تفاعل عرض الصورة وملء الشاشة
   document.addEventListener('click', event => {
     const btn = event.target.closest('.view-image-btn') || event.target.closest('.zoomable-image');
     if (btn) {
@@ -395,7 +452,7 @@
           showToast('الجودة العالية (HD)');
         } else {
           modalImage.style.filter = 'none';
-          showToast('الدقة العادية');
+          showToast('الجودة العادية');
         }
       }
     });

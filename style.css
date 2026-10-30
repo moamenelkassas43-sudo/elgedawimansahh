@@ -143,7 +143,7 @@ button{cursor:pointer}
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
 }
 
-/* تنسيق مشغل الفيديو الفعلي السريع جداً */
+/* تنسيق مشغل الفيديو الاحترافي الحقيقي وشريط التحكم */
 .custom-video-player{
   width: 100%;
   height: 100%;
@@ -152,44 +152,72 @@ button{cursor:pointer}
   background: #000;
   cursor: pointer;
 }
-.video-overlay-controls{
+.video-custom-controls{
   position: absolute;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(4,7,13,0.95), rgba(4,7,13,0.4) 70%, transparent);
+  padding: 10px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 6;
+  opacity: 0.95;
+  transition: opacity 0.2s ease;
+}
+.vid-progress-container{
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.vid-progress-bar{
+  height: 100%;
+  width: 0%;
+  background: var(--gold);
+  border-radius: 4px;
+  transition: width 0.1s linear;
+}
+.vid-controls-row{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 6;
-  pointer-events: none;
 }
-.video-overlay-controls button{
-  pointer-events: auto;
+.vid-left-group, .vid-right-group{
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.vid-ctrl-btn{
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(10, 16, 28, 0.85);
-  border: 1px solid rgba(217, 183, 106, 0.4);
+.vid-btn{
+  background: transparent;
+  border: 0;
   color: #fff;
-  display: grid;
-  place-items: center;
   font-size: 14px;
   cursor: pointer;
-  backdrop-filter: blur(6px);
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
-.vid-ctrl-btn:hover{
-  background: var(--gold);
-  color: #09111e;
-  border-color: var(--gold);
-  transform: scale(1.08);
+.vid-btn:hover{
+  color: var(--gold);
+  transform: scale(1.1);
 }
-.vid-right-tools{
-  display: flex;
-  gap: 8px;
+.vid-time{
+  font-size: 10px;
+  color: #f4f5f8;
+  font-family: monospace;
+}
+.vid-volume-slider{
+  width: 65px;
+  height: 4px;
+  accent-color: var(--gold);
+  cursor: pointer;
 }
 
 /* واجهة تسجيل الدخول */

@@ -18,11 +18,11 @@
   const imageModal = $('#imageModal');
   const modalImage = $('#modalImage');
   const closeModalBtn = $('#closeModalBtn');
+  const qualityBtns = $$('.q-btn');
 
   const STORAGE_KEY = 'tareekh_alroqi_profile_v2';
   let toastTimer;
-
-  const API_BASE = '';
+  let activeImgSrc = '';
 
   function setTheme(gender) {
     const isFemale = gender === 'female';
@@ -111,6 +111,7 @@
     $('#displayGrade').textContent = profile.grade;
     $('#displayUniqueCode').textContent = profile.code || 'جلسة محلية';
     setTheme(profile.gender);
+    if (genderSelect) genderSelect.value = profile.gender;
   }
 
   function setupReveal() {
@@ -198,7 +199,7 @@
       } catch (_) {}
 
       openApp(localProfile);
-      showToast('تم حفظ تسجيل الدخول بنجاح.');
+      showToast('تم تسجيل الدخول وحفظ الجلسة بنجاح.');
     } catch (error) {
       setAuthMessage(error.message || 'حدث خطأ غير متوقع.');
     } finally {
@@ -222,16 +223,33 @@
     showToast('تم تسجيل الخروج بنجاح.');
   });
 
-  // تفاعل فتح وإغلاق الصورة المكبرة (Modal)
+  // تفاعل فتح الصورة مع اختيار الجودات
   document.addEventListener('click', event => {
     const btn = event.target.closest('.view-image-btn') || event.target.closest('.zoomable-image');
     if (btn) {
-      const imgSrc = btn.dataset?.img || btn.src;
-      if (imgSrc && modalImage && imageModal) {
-        modalImage.src = imgSrc;
+      activeImgSrc = btn.dataset?.img || btn.src;
+      if (activeImgSrc && modalImage && imageModal) {
+        modalImage.src = activeImgSrc;
         imageModal.classList.remove('hidden');
       }
     }
+  });
+
+  qualityBtns.forEach(qBtn => {
+    qBtn.addEventListener('click', () => {
+      qualityBtns.forEach(b => b.classList.remove('active'));
+      qBtn.classList.add('active');
+      const quality = qBtn.dataset.quality;
+      if (modalImage) {
+        if (quality === 'hd') {
+          modalImage.style.filter = 'contrast(1.05) saturate(1.08)';
+          showToast('تم التبديل إلى الجودة العالية (HD)');
+        } else {
+          modalImage.style.filter = 'none';
+          showToast('تم التبديل إلى الجودة العادية');
+        }
+      }
+    });
   });
 
   const closeImageModal = () => {

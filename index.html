@@ -17,13 +17,15 @@
 <div class="site-backdrop" aria-hidden="true"></div>
 <div class="ambient ambient-one" aria-hidden="true"></div>
 <div class="ambient ambient-two" aria-hidden="true"></div>
+<canvas id="particlesCanvas" aria-hidden="true"></canvas>
 <div class="noise-layer" aria-hidden="true"></div>
 
+<!-- واجهة تسجيل الدخول المجددة والمرتبة بسلاسة عالية -->
 <section id="authModal" class="auth-shell" aria-labelledby="authTitle">
   <div class="auth-card glass reveal">
     <div class="auth-topline">
       <span class="live-dot"></span>
-      <span>بوابتك إلى المعرفة</span>
+      <span>بوابتك إلى المعرفة والتميز</span>
       <span class="topline-rule"></span>
       <span class="topline-year">٢٠٢٦ / ٢٠٢٧</span>
     </div>
@@ -50,30 +52,30 @@
     </div>
 
     <form id="loginForm" class="auth-form">
-      <div class="input-group-styled">
-        <label class="field-label" for="studentName">الاسم الثلاثي</label>
+      <div class="auth-field-group">
+        <label class="field-label" for="studentName">الاسم الثلاثي للطالب</label>
         <div class="input-wrap">
           <i class="fa-regular fa-user"></i>
-          <input id="studentName" name="name" type="text" autocomplete="name" minlength="5" maxlength="90" required placeholder="اكتب اسمك الثلاثي">
+          <input id="studentName" name="name" type="text" autocomplete="name" minlength="5" maxlength="90" required placeholder="اكتب اسمك الثلاثي بوضوح">
         </div>
       </div>
 
-      <div class="form-grid">
-        <div class="input-group-styled">
+      <div class="auth-row-grid">
+        <div class="auth-field-group">
           <label class="field-label" for="studentGrade">الصف الدراسي</label>
           <div class="select-wrap">
             <i class="fa-solid fa-book-open"></i>
             <select id="studentGrade" name="grade" required>
               <option value="الأول الثانوي">الأول الثانوي</option>
               <option value="الثاني الثانوي">الثاني الثانوي</option>
-              <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا☝🏻)</option>
+              <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا😎)</option>
               <option value="الثالث الثانوي">الثالث الثانوي</option>
             </select>
           </div>
         </div>
 
-        <div class="input-group-styled">
-          <label class="field-label" for="studentGender">النوع (لتحديد الثيم)</label>
+        <div class="auth-field-group">
+          <label class="field-label" for="studentGender">نوع الثيم (تنسيق المنصة)</label>
           <div class="select-wrap">
             <i class="fa-solid fa-venus-mars"></i>
             <select id="studentGender" name="gender" required>
@@ -84,7 +86,7 @@
         </div>
       </div>
 
-      <div class="input-group-styled">
+      <div class="auth-field-group">
         <label class="field-label" for="studentPhone">رقم الهاتف المصري</label>
         <div class="input-wrap">
           <i class="fa-solid fa-mobile-screen-button"></i>
@@ -94,11 +96,11 @@
 
       <p class="privacy-note">
         <i class="fa-solid fa-shield-halved"></i>
-        بياناتك محفوظة بأمان تام في المنصة.
+        بياناتك مسجلة بأمان في جلستك الخاصة.
       </p>
 
-      <button id="submitBtn" type="submit" class="primary-btn">
-        <span>الدخول إلى المنصة</span>
+      <button id="submitBtn" type="submit" class="primary-btn haptic-btn">
+        <span>الانطلاق إلى المنصة</span>
         <i class="fa-solid fa-arrow-left-long"></i>
         <span class="btn-shine"></span>
       </button>
@@ -107,12 +109,13 @@
     </form>
 
     <div class="auth-footer">
-      <span>منصة تعليمية</span><span class="footer-dot">•</span><span>وعيٌ يصنع المستقبل</span>
+      <span>منصة تفاعلية</span><span class="footer-dot">•</span><span>وعيٌ يصنع المستقبل</span>
     </div>
   </div>
-  <p class="auth-caption">رحلتك في التاريخ تبدأ بخطوة.</p>
+  <p class="auth-caption">رحلتك في التاريخ تبدأ بخطوة واثقة.</p>
 </section>
 
+<!-- لوحة المنصة الرئيسية -->
 <div id="mainApp" class="app-shell hidden">
   <header class="site-header">
     <div class="header-inner">
@@ -126,21 +129,26 @@
         </span>
       </a>
 
+      <!-- شريط التنقل العلوي مفعل بالكامل للكمبيوتر والشاشات الكبيرة -->
       <nav class="desktop-nav" aria-label="التنقل الرئيسي">
         <a class="nav-link active" href="#home"><i class="fa-solid fa-house"></i> الرئيسية</a>
         <a class="nav-link" href="#learning"><i class="fa-solid fa-compass"></i> محتوى المنصة</a>
-        <a class="nav-link" href="#updates"><i class="fa-regular fa-newspaper"></i> المستجدات</a>
+        <a class="nav-link" href="#updates"><i class="fa-regular fa-newspaper"></i> المستجدات <span class="nav-pulse-dot"></span></a>
         <a class="nav-link" href="#community"><i class="fa-solid fa-people-group"></i> مجتمعنا</a>
       </nav>
 
       <div class="header-actions">
-        <button id="bellBtn" class="icon-btn notification-trigger" aria-label="فتح التنبيهات" aria-expanded="false">
+        <!-- زر التبديل السريع بين الوضع النهاري والليلي -->
+        <button id="themeToggleBtn" class="icon-btn haptic-btn" aria-label="تبديل الوضع النهاري والليلي" title="الوضع النهاري/الليلي">
+          <i class="fa-solid fa-sun" id="themeIcon"></i>
+        </button>
+        <button id="bellBtn" class="icon-btn notification-trigger haptic-btn" aria-label="فتح التنبيهات" aria-expanded="false">
           <i class="fa-regular fa-bell"></i><span class="notification-dot"></span>
         </button>
-        <button id="logoutBtn" class="logout-btn">
+        <button id="logoutBtn" class="logout-btn haptic-btn">
           <i class="fa-solid fa-arrow-right-from-bracket"></i><span>خروج</span>
         </button>
-        <button id="mobileMenuBtn" class="icon-btn mobile-menu-btn" aria-label="فتح القائمة" aria-expanded="false">
+        <button id="mobileMenuBtn" class="icon-btn mobile-menu-btn haptic-btn" aria-label="فتح القائمة" aria-expanded="false">
           <i class="fa-solid fa-bars"></i>
         </button>
       </div>
@@ -149,16 +157,16 @@
     <div id="notificationsDropdown" class="notification-panel hidden">
       <div class="panel-title">
         <span><i class="fa-regular fa-bell"></i> مركز التنبيهات</span>
-        <span class="panel-status">جاهز</span>
+        <span class="panel-status">نشط</span>
       </div>
       <div class="notification-item">
         <span class="notification-icon"><i class="fa-solid fa-sparkles"></i></span>
         <div>
-          <strong>أهلًا بك في تاريخ الرقي</strong>
-          <p>مساحة للتعلّم والفهم وربط أحداث الماضي بالحاضر.</p>
+          <strong>تحديثات جديدة في المنصة</strong>
+          <p>تم إضافة خاصية معاينة الصور بدقة عالية ومؤثرات تفاعلية.</p>
         </div>
       </div>
-      <p class="panel-footnote">ستظهر التنبيهات الجديدة بعد ربط المنصة بخدمة محتوى.</p>
+      <p class="panel-footnote">جميع المراجعات متوفرة حصرياً عبر المنصة.</p>
     </div>
 
     <nav id="mobileNav" class="mobile-nav hidden" aria-label="قائمة الهاتف">
@@ -172,15 +180,15 @@
   <main>
     <section id="home" class="hero-section page-section">
       <div class="hero-copy reveal">
-        <div class="status-pill"><span class="live-dot"></span> منصتك التعليمية في التاريخ</div>
+        <div class="status-pill"><span class="live-dot"></span> منصتك التعليمية المتطورة في التاريخ</div>
         <p class="hero-kicker">اقرأ الماضي · افهم الحاضر · اصنع المستقبل</p>
         <h2>التاريخ ليس ما <span class="gold-text">انتهى</span>…<br>بل ما يساعدنا أن <span class="accent-text">نفهم</span>.</h2>
         <p class="hero-description">
-          مرحبًا بك في منصة الأستاذ محمد الجداوي؛ تجربة تعليمية تجمع بين المعرفة والتنظيم والشغف بفهم الحضارة الإنسانية.
+          مرحبًا بك في منصة الأستاذ محمد الجداوي؛ تجربة تعليمية فائقة السلاسة تجمع بين المعرفة والتصميم التفاعلي الشغوف.
         </p>
         <div class="hero-actions">
-          <a href="#learning" class="primary-btn hero-cta"><span>اكتشف المنصة</span><i class="fa-solid fa-arrow-left-long"></i></a>
-          <a href="#community" class="secondary-btn"><i class="fa-regular fa-circle-play"></i> انضم إلى مجتمعنا</a>
+          <a href="#learning" class="primary-btn hero-cta haptic-btn"><span>اكتشف المنصة</span><i class="fa-solid fa-arrow-left-long"></i></a>
+          <a href="#community" class="secondary-btn haptic-btn"><i class="fa-regular fa-circle-play"></i> انضم إلى مجتمعنا</a>
         </div>
         <div class="hero-trust">
           <div class="mini-avatars">
@@ -188,7 +196,7 @@
             <span><i class="fa-solid fa-landmark"></i></span>
             <span><i class="fa-solid fa-graduation-cap"></i></span>
           </div>
-          <p>تعلّم بفهم، لا بمجرد الحفظ</p>
+          <p>تعلّم بفهم عميق، لا بمجرد الحفظ</p>
         </div>
       </div>
 
@@ -246,7 +254,7 @@
           <p class="feature-label">LEARN & UNDERSTAND</p>
           <h3>المحتوى الدراسي</h3>
           <p class="feature-description">مساحة منظمة للدروس والمراجعات والملخصات التي تساعدك على الفهم وربط الأحداث.</p>
-          <a href="#updates" class="feature-link">استكشف المستجدات <i class="fa-solid fa-arrow-left"></i></a>
+          <a href="#updates" class="feature-link haptic-btn">استكشف المستجدات <i class="fa-solid fa-arrow-left"></i></a>
         </article>
 
         <article class="feature-card reveal">
@@ -254,7 +262,7 @@
           <p class="feature-label">WATCH & DISCOVER</p>
           <h3>مكتبة الفيديو</h3>
           <p class="feature-description">مكان مخصص للشروحات المرئية والمراجعات، ويمكن إضافة روابط الدروس لاحقًا.</p>
-          <a href="#updates" class="feature-link">تعرّف على التحديثات <i class="fa-solid fa-arrow-left"></i></a>
+          <a href="#updates" class="feature-link haptic-btn">تعرّف على التحديثات <i class="fa-solid fa-arrow-left"></i></a>
         </article>
 
         <article class="feature-card reveal">
@@ -262,11 +270,12 @@
           <p class="feature-label">THINK & GROW</p>
           <h3>نصائح دراسية</h3>
           <p class="feature-description">أفكار عملية لتنظيم وقتك وتثبيت المعلومات وبناء عادة تعلّم متوازنة.</p>
-          <a href="#studyTips" class="feature-link">اقرأ النصائح <i class="fa-solid fa-arrow-left"></i></a>
+          <a href="#studyTips" class="feature-link haptic-btn">اقرأ النصائح <i class="fa-solid fa-arrow-left"></i></a>
         </article>
       </div>
     </section>
 
+    <!-- قسم المستجدات والأخبار مع النقطة الحمراء النابضة وزر العرض المتطور -->
     <section id="updates" class="updates-section page-section">
       <div class="section-heading reveal">
         <div>
@@ -280,10 +289,10 @@
       <div class="updates-grid">
         <article class="update-card reveal">
           <div class="update-art art-news" style="padding: 0; overflow: hidden; position: relative;">
-            <span class="pulse-badge" title="تحديث جديد"></span>
+            <span class="pulse-badge" title="يوجد تحديث جديد!"></span>
             <img src="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg" alt="آخر الأخبار" class="zoomable-image" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-            <button type="button" class="view-image-btn" data-img="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg">
-              <i class="fa-solid fa-expand"></i> اضغط للعرض والتكبير
+            <button type="button" class="view-image-btn haptic-btn" data-img="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg">
+              <i class="fa-solid fa-expand"></i> اضغط للعرض المكبر
             </button>
           </div>
           <div class="update-body">
@@ -324,7 +333,7 @@
         <p>تابع المجموعة المخصصة لطلاب تانية بكالوريا، وراجع تفاصيل المجموعة قبل الانضمام.</p>
         <div class="community-note"><i class="fa-solid fa-circle-info"></i><span>تأكد أن المجموعة مناسبة لصفك قبل الدخول.</span></div>
       </div>
-      <a class="whatsapp-btn" href="https://chat.whatsapp.com/LrNPKu3gZwZD2MFvWQDZ04?s=cl&p=a&mlu=4&ilr=4&iam=2" target="_blank" rel="noopener noreferrer">
+      <a class="whatsapp-btn haptic-btn" href="https://chat.whatsapp.com/LrNPKu3gZwZD2MFvWQDZ04?s=cl&p=a&mlu=4&ilr=4&iam=2" target="_blank" rel="noopener noreferrer">
         <i class="fa-brands fa-whatsapp"></i>
         <span><strong>الانضمام إلى جروب واتساب</strong><small>طلاب تانية بكالوريا</small></span>
         <i class="fa-solid fa-arrow-up-left-from-circle arrow-circle"></i>
@@ -339,16 +348,20 @@
   </footer>
 </div>
 
-<!-- Modal لعرض الصورة المكبرة مع جودات عرض مختلفة -->
+<!-- العارض المطور للصورة (Lightbox مع خيارات الجودة، التدوير، والتكبير الكامل) -->
 <div id="imageModal" class="image-modal hidden">
   <div class="image-modal-backdrop"></div>
   <div class="image-modal-content">
     <div class="modal-header-actions">
       <div class="quality-selector">
-        <button type="button" class="q-btn active" data-quality="hd">جودة عالية (HD)</button>
-        <button type="button" class="q-btn" data-quality="normal">جودة عادية</button>
+        <button type="button" class="q-btn active haptic-btn" data-quality="hd">دقة عالية (HD)</button>
+        <button type="button" class="q-btn haptic-btn" data-quality="4k">دقة فائقة (4K)</button>
+        <button type="button" class="q-btn haptic-btn" data-quality="normal">دقة عادية</button>
       </div>
-      <button id="closeModalBtn" class="close-modal-btn" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-tools">
+        <button type="button" id="rotateImgBtn" class="tool-btn haptic-btn" title="تدوير الصورة"><i class="fa-solid fa-rotate-right"></i></button>
+        <button id="closeModalBtn" class="close-modal-btn haptic-btn" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+      </div>
     </div>
     <div class="modal-img-container">
       <img id="modalImage" src="" alt="صورة مكبرة">

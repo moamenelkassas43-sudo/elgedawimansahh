@@ -96,7 +96,7 @@
     }
 
     if (!['male', 'female'].includes(data.gender)) {
-      throw new Error('اختر لون المنصة.');
+      throw new Error('اختر النوع بشكل صحيح.');
     }
 
     return {
@@ -222,7 +222,7 @@
 
         openApp(safeProfile);
       } else {
-        // وضع معاينة فقط؛ لا ينشئ حسابًا موثقًا ولا يتحقق من هوية الطالب.
+        // وضع معاينة محلي مع حفظ الدخول في الذاكرة الدائمة (localStorage)
         const localProfile = {
           ...profile,
           code: makeSessionCode(),
@@ -230,13 +230,13 @@
         };
 
         try {
-          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(localProfile));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(localProfile));
         } catch (_) {
           // يستمر العرض حتى لو كان التخزين غير متاح.
         }
 
         openApp(localProfile);
-        showToast('تم فتح وضع المعاينة المحلي، وليس حسابًا موثقًا.');
+        showToast('تم حفظ تسجيل الدخول بنجاح.');
       }
     } catch (error) {
       setAuthMessage(error.message || 'حدث خطأ غير متوقع.');
@@ -251,7 +251,7 @@
   });
 
   logoutBtn?.addEventListener('click', async () => {
-    if (!confirm('هل تريد إنهاء الجلسة الحالية؟')) return;
+    if (!confirm('هل تريد إنهاء الجلسة الحالية وتسجيل الخروج؟')) return;
 
     try {
       if (API_BASE) {
@@ -261,13 +261,13 @@
         });
       }
 
-      sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
     } catch (_) {
       // لا نعرض تفاصيل تقنية للمستخدم.
     }
 
     closeApp();
-    showToast('تم إنهاء الجلسة.');
+    showToast('تم تسجيل الخروج بنجاح.');
   });
 
   bellBtn?.addEventListener('click', event => {
@@ -343,9 +343,9 @@
   setTheme('male');
   setupReveal();
 
-  // استعادة جلسة المعاينة داخل علامة التبويب الحالية.
+  // استعادة الجلسة المحفوظة تلقائياً (LocalStorage)
   try {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_KEY);
 
     if (saved) {
       const profile = JSON.parse(saved);
@@ -359,12 +359,12 @@
       ) {
         openApp(profile);
       } else {
-        sessionStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(STORAGE_KEY);
       }
     }
   } catch (_) {
     try {
-      sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
     } catch (_) {}
   }
 })();

@@ -1,562 +1,308 @@
-<!doctype html>
-<html lang="ar" dir="rtl" class="dark">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080d18">
-<meta name="description" content="منصة تاريخ الرقي التعليمية للأستاذ محمد الجداوي">
-<title>تاريخ الرقي | الأستاذ محمد الجداوي</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="style.css">
-<script>document.documentElement.classList.add('js-ready')</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تاريخ الرُّقي | منصة الأستاذ محمد الجداوي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="theme-male">
-<div class="site-backdrop" aria-hidden="true"></div>
-<div class="ambient ambient-one" aria-hidden="true"></div>
-<div class="ambient ambient-two" aria-hidden="true"></div>
-<canvas id="particlesCanvas" aria-hidden="true"></canvas>
-<div class="noise-layer" aria-hidden="true"></div>
+  <canvas id="particlesCanvas" aria-hidden="true"></canvas>
 
-<!-- واجهة تسجيل الدخول بالكود + البيانات -->
-<section id="authModal" class="auth-shell" aria-labelledby="authTitle">
-  <div class="auth-card glass reveal">
-    <div class="auth-topline">
-      <span class="live-dot"></span>
-      <span>بوابتك إلى المعرفة والتميز</span>
-      <span class="topline-rule"></span>
-      <span class="topline-year">٢٠٢٦ / ٢٠٢٧</span>
-    </div>
-
-    <div class="teacher-seal">
-      <div class="seal-orbit orbit-a"></div>
-      <div class="seal-orbit orbit-b"></div>
-      <div class="seal-image">
-        <img src="https://i.postimg.cc/j2c4vzD6/IMG-20261028-041451.png" alt="الأستاذ محمد الجداوي">
+  <!-- شاشة تسجيل الدخول -->
+  <div id="authModal" class="auth-modal">
+    <div class="auth-card">
+      <div class="auth-badge">
+        <i class="fa-solid fa-landmark"></i>
+        <span>منصة تاريخ الرُّقي</span>
       </div>
-      <span class="seal-star star-a">✦</span>
-      <span class="seal-star star-b">✧</span>
-    </div>
+      <h1>أهلاً بك في منصة أ. محمد الجداوي</h1>
+      <p class="auth-subtitle">أدخل كود الدخول المعتمد (5 أرقام) مع بياناتك للدخول إلى المنصة</p>
 
-    <div class="auth-heading">
-      <p class="eyebrow">HISTORY • KNOWLEDGE • FUTURE</p>
-      <h1 id="authTitle">تاريخ <span>الرُّقي</span></h1>
-      <p class="teacher-line">الأستاذ محمد الجداوي <i class="fa-solid fa-circle-check"></i></p>
-      <p class="teacher-subtitle">كبير مدرسين التاريخ · سيدي سالم</p>
-    </div>
-
-    <div class="auth-divider">
-      <span></span><i class="fa-solid fa-landmark"></i><span></span>
-    </div>
-
-    <form id="loginForm" class="auth-form">
-      <div class="auth-field-group">
-        <label class="field-label" for="accessCode">كود الدخول (٥ خانات)</label>
-        <div class="input-wrap">
-          <i class="fa-solid fa-key"></i>
-          <input id="accessCode" name="code" type="text" maxlength="5" minlength="5" required placeholder="مثال: 10293 أو كود المدير" style="letter-spacing:3px;font-weight:800;">
+      <form id="loginForm" class="auth-form" novalidate>
+        <div class="form-group">
+          <label for="accessCode"><i class="fa-solid fa-key"></i> كود الدخول (5 أرقام)</label>
+          <input type="text" id="accessCode" maxlength="5" placeholder="مثال: 10101" autocomplete="off" required />
         </div>
-      </div>
 
-      <div id="studentExtraFields">
-        <div class="auth-field-group" style="margin-bottom:14px;">
-          <label class="field-label" for="studentName">الاسم الثلاثي للطالب</label>
-          <div class="input-wrap">
-            <i class="fa-regular fa-user"></i>
-            <input id="studentName" name="name" type="text" autocomplete="name" minlength="5" maxlength="90" required placeholder="اكتب اسمك الثلاثي بوضوح">
+        <div id="studentExtraFields">
+          <div class="form-group">
+            <label for="studentName"><i class="fa-solid fa-user"></i> الاسم الثلاثي</label>
+            <input type="text" id="studentName" placeholder="اكتب اسمك الثلاثي" required />
+          </div>
+
+          <div class="form-group">
+            <label for="studentPhone"><i class="fa-solid fa-phone"></i> رقم الهاتف</label>
+            <input type="tel" id="studentPhone" maxlength="11" placeholder="01xxxxxxxxx" required />
           </div>
         </div>
 
-        <div class="auth-row-grid" style="margin-bottom:14px;">
-          <div class="auth-field-group">
-            <label class="field-label" for="studentGrade">الصف الدراسي</label>
-            <div class="select-wrap">
-              <i class="fa-solid fa-book-open"></i>
-              <select id="studentGrade" name="grade" required>
-                <option value="الأول الثانوي">الأول الثانوي</option>
-                <option value="الثاني الثانوي">الثاني الثانوي</option>
-                <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا😎)</option>
-                <option value="الثالث الثانوي">الثالث الثانوي</option>
-              </select>
-            </div>
-          </div>
+        <p id="authMessage" class="auth-message" role="alert"></p>
 
-          <div class="auth-field-group">
-            <label class="field-label" for="studentGender">نوع الثيم (تنسيق المنصة)</label>
-            <div class="select-wrap">
-              <i class="fa-solid fa-venus-mars"></i>
-              <select id="studentGender" name="gender" required>
-                <option value="male">ولد (💙)</option>
-                <option value="female">بنت (💕)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="auth-field-group">
-          <label class="field-label" for="studentPhone">رقم الهاتف المصري</label>
-          <div class="input-wrap">
-            <i class="fa-solid fa-mobile-screen-button"></i>
-            <input id="studentPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" pattern="01[0125][0-9]{8}" maxlength="11" required placeholder="01xxxxxxxxx">
-          </div>
-        </div>
-      </div>
-
-      <p class="privacy-note">
-        <i class="fa-solid fa-shield-halved"></i>
-        بياناتك وكودك محفوظان ومؤمّنان عبر السيرفر.
-      </p>
-
-      <button id="submitBtn" type="submit" class="primary-btn haptic-btn">
-        <span>الانطلاق إلى المنصة</span>
-        <i class="fa-solid fa-arrow-left-long"></i>
-        <span class="btn-shine"></span>
-      </button>
-
-      <p id="authMessage" class="form-message" role="status" aria-live="polite"></p>
-    </form>
-
-    <div class="auth-footer">
-      <span>منصة تفاعلية</span><span class="footer-dot">•</span><span>وعيٌ يصنع المستقبل</span>
+        <button type="submit" id="submitBtn" class="btn-primary full-btn">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>دخول المنصة</span>
+        </button>
+      </form>
     </div>
   </div>
-  <p class="auth-caption">رحلتك في التاريخ تبدأ بخطوة واثقة.</p>
-</section>
 
-<!-- لوحة المنصة الرئيسية -->
-<div id="mainApp" class="app-shell hidden">
-  <header class="site-header">
-    <div class="header-inner">
-      <a href="#home" class="brand" aria-label="العودة للرئيسية">
-        <span class="brand-mark">
-          <img src="https://i.postimg.cc/j2c4vzD6/IMG-20261028-041451.png" alt="">
-        </span>
-        <span class="brand-copy">
-          <strong>تاريخ الرُّقي</strong>
-          <small>الأستاذ محمد الجداوي</small>
-        </span>
-      </a>
-
-      <nav class="desktop-nav" aria-label="التنقل الرئيسي">
-        <a class="nav-link active" href="#home"><i class="fa-solid fa-house"></i> الرئيسية</a>
-        <a class="nav-link" href="#learning"><i class="fa-solid fa-compass"></i> محتوى المنصة</a>
-        <a class="nav-link" href="#updates"><i class="fa-regular fa-newspaper"></i> المستجدات <span class="nav-pulse-dot"></span></a>
-        <a class="nav-link" href="#community"><i class="fa-solid fa-people-group"></i> مجتمعنا</a>
-        <a class="nav-link hidden" id="adminNavLink" href="#adminPanel"><i class="fa-solid fa-user-shield"></i> لوحة الأدمن</a>
-      </nav>
-
-      <div class="header-actions">
-        <button id="themeToggleBtn" class="icon-btn haptic-btn" aria-label="تبديل الوضع النهاري والليلي" title="الوضع النهاري/الليلي">
-          <i class="fa-solid fa-sun" id="themeIcon"></i>
-        </button>
-        <button id="bellBtn" class="icon-btn notification-trigger haptic-btn" aria-label="فتح التنبيهات" aria-expanded="false">
-          <i class="fa-regular fa-bell"></i><span id="notifBadge" class="notification-badge">0</span>
-        </button>
-        <button id="logoutBtn" class="logout-btn haptic-btn">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i><span>خروج</span>
-        </button>
-        <button id="mobileMenuBtn" class="icon-btn mobile-menu-btn haptic-btn" aria-label="فتح القائمة" aria-expanded="false">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-      </div>
-    </div>
-
-    <div id="notificationsDropdown" class="notification-panel hidden">
-      <div class="panel-title">
-        <span><i class="fa-regular fa-bell"></i> مركز الإشعارات</span>
-        <span class="panel-status" id="notifStatusText">لا توجد إشعارات جديدة</span>
-      </div>
-      <div id="notificationsListContainer">
-        <p class="panel-footnote">لا توجد أي إشعارات مضافة حالياً.</p>
-      </div>
-    </div>
-
-    <nav id="mobileNav" class="mobile-nav hidden" aria-label="قائمة الهاتف">
-      <a href="#home">الرئيسية</a>
-      <a href="#learning">محتوى المنصة</a>
-      <a href="#updates">المستجدات</a>
-      <a href="#community">مجتمعنا</a>
-      <a href="#adminPanel" id="mobileAdminLink" class="hidden">لوحة الأدمن</a>
-    </nav>
-  </header>
-
-  <main>
-    <section id="home" class="hero-section page-section">
-      <div class="hero-copy reveal">
-        <div class="status-pill"><span class="live-dot"></span> منصتك التعليمية المتطورة في التاريخ</div>
-        <p class="hero-kicker">اقرأ الماضي · افهم الحاضر · اصنع المستقبل</p>
-        <h2>التاريخ ليس ما <span class="gold-text">انتهى</span>…<br>بل ما يساعدنا أن <span class="accent-text">نفهم</span>.</h2>
-        <p class="hero-description">
-          مرحبًا بك في منصة الأستاذ محمد الجداوي؛ تجربة تعليمية فائقة السلاسة تجمع بين المعرفة والتصميم التفاعلي الشغوف.
-        </p>
-        <div class="hero-actions">
-          <a href="#learning" class="primary-btn hero-cta haptic-btn"><span>اكتشف المنصة</span><i class="fa-solid fa-arrow-left-long"></i></a>
-          <a href="#community" class="secondary-btn haptic-btn"><i class="fa-regular fa-circle-play"></i> انضم إلى مجتمعنا</a>
-        </div>
-        <div class="hero-trust">
-          <div class="mini-avatars">
-            <span><i class="fa-solid fa-book-open"></i></span>
-            <span><i class="fa-solid fa-landmark"></i></span>
-            <span><i class="fa-solid fa-graduation-cap"></i></span>
+  <!-- التطبيق الرئيسي -->
+  <div id="mainApp" class="main-app hidden">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="#top" class="brand">
+          <div class="brand-icon"><i class="fa-solid fa-crown"></i></div>
+          <div>
+            <strong>تاريخ الرُّقي</strong>
+            <small>أ. محمد الجداوي</small>
           </div>
-          <p>تعلّم بفهم عميق، لا بمجرد الحفظ</p>
+        </a>
+
+        <nav class="desktop-nav">
+          <a href="#updatesSection">آخر التحديثات</a>
+          <a href="#learningSection">المحتوى التعليمي</a>
+          <a href="#adminPanel" id="adminNavLink" class="hidden admin-nav-pill">
+            <i class="fa-solid fa-shield-halved"></i> لوحة الأدمن
+          </a>
+        </nav>
+
+        <div class="header-actions">
+          <div class="user-pill" title="بيانات الجلسة">
+            <span id="displayName">طالب</span>
+            <small id="displayUniqueCode">10101</small>
+          </div>
+
+          <button type="button" id="themeToggleBtn" class="icon-btn" title="تغيير المظهر">
+            <i id="themeIcon" class="fa-solid fa-sun"></i>
+          </button>
+
+          <div class="notif-wrap">
+            <button type="button" id="bellBtn" class="icon-btn" aria-expanded="false" title="الإشعارات">
+              <i class="fa-solid fa-bell"></i>
+              <span id="notifBadge" class="notif-badge">0</span>
+            </button>
+            <div id="notificationsDropdown" class="notif-dropdown hidden">
+              <div class="notif-header">
+                <strong>الإشعارات المباشرة</strong>
+                <span id="notifStatusText">لا توجد إشعارات</span>
+              </div>
+              <div id="notificationsListContainer" class="notif-list"></div>
+            </div>
+          </div>
+
+          <button type="button" id="logoutBtn" class="icon-btn danger-icon" title="تسجيل الخروج">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+
+          <button type="button" id="mobileMenuBtn" class="icon-btn mobile-only" aria-label="القائمة">
+            <i class="fa-solid fa-bars"></i>
+          </button>
         </div>
       </div>
 
-      <div class="hero-visual reveal">
-        <div class="visual-backdrop"></div>
-        <div class="visual-grid"></div>
-        <div class="orbit orbit-large"></div>
-        <div class="orbit orbit-small"></div>
-        <div class="hero-portrait-frame">
-          <img src="https://i.postimg.cc/j2c4vzD6/IMG-20261028-041451.png" alt="الأستاذ محمد الجداوي">
-        </div>
-        <div class="floating-card card-top">
-          <span class="floating-icon"><i class="fa-solid fa-feather-pointed"></i></span>
-          <div><small>فكرة المنصة</small><strong>المعرفة تصنع الفرق</strong></div>
-        </div>
-        <div class="floating-card card-bottom">
-          <span class="floating-icon gold-icon"><i class="fa-solid fa-hourglass-half"></i></span>
-          <div><small>رحلة التعلّم</small><strong>من الماضي إلى المستقبل</strong></div>
-        </div>
-        <span class="visual-index">01 <i></i> HISTORY</span>
+      <div id="mobileNav" class="mobile-nav hidden">
+        <a href="#updatesSection">آخر التحديثات</a>
+        <a href="#learningSection">المحتوى التعليمي</a>
+        <a href="#adminPanel" id="mobileAdminLink" class="hidden">لوحة الأدمن</a>
       </div>
+    </header>
 
-      <div class="hero-bottomline">
-        <span>01 / بوابتك إلى المعرفة</span>
-        <span class="scroll-cue">مرّر لاكتشاف المزيد <i class="fa-solid fa-arrow-down-long"></i></span>
-      </div>
-    </section>
-
-    <section class="welcome-strip page-section reveal">
-      <div class="welcome-icon"><i class="fa-solid fa-user-graduate"></i></div>
-      <div class="welcome-text">
-        <span>مساحتك الشخصية</span>
-        <h3>أهلًا، <strong id="displayName">طالبنا العزيز</strong></h3>
-        <p>رحلتك التعليمية تبدأ بالفضول، وتكتمل بالاستمرار.</p>
-      </div>
-      <div class="student-meta">
-        <div><span>الصف الدراسي</span><strong id="displayGrade">—</strong></div>
-        <div><span>كود الدخول</span><strong id="displayUniqueCode">—</strong></div>
-      </div>
-    </section>
-
-    <!-- مساحات المعرفة -->
-    <section id="learning" class="content-section page-section">
-      <div class="section-heading reveal">
+    <main id="top" class="container main-content">
+      <!-- قسم الترحيب -->
+      <section class="hero-box reveal">
         <div>
-          <p class="section-eyebrow">YOUR LEARNING SPACE</p>
-          <h2>مساحات <span class="gold-text">المعرفة</span></h2>
-          <p>كل قسم صُمّم ليكون نقطة انطلاق للتعلّم والفهم.</p>
+          <span class="hero-tag"><i class="fa-solid fa-bolt"></i> منصة التاريخ المتكاملة</span>
+          <h2>رحلتك نحو الدرجة النهائية في التاريخ تبدأ من هنا</h2>
+          <p>تابع أحدث الشروحات، المراجعات، الملفات، والتنبيهات المباشرة من الأستاذ محمد الجداوي في مكان واحد.</p>
         </div>
-        <div class="section-actions-row">
-          <div class="search-box-wrap">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" class="section-search-input" placeholder="ابحث في الأقسام..." data-target="learningGrid">
+        <div class="hero-stats">
+          <div class="stat-box">
+            <i class="fa-solid fa-shield-check"></i>
+            <span>حساب مفعل ومؤمّن</span>
           </div>
-          <span class="section-number">02 <i class="fa-solid fa-arrow-up-left-from-circle"></i></span>
+          <div class="stat-box">
+            <i class="fa-solid fa-tower-broadcast"></i>
+            <span>تحديثات لحظية</span>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div id="learningGrid" class="feature-grid">
-        <article class="feature-card reveal searchable-item" data-title="المحتوى الدراسي">
-          <div class="card-top-actions">
-            <button type="button" class="favorite-btn haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
+      <!-- لوحة تحكم الأدمن -->
+      <section id="adminPanel" class="admin-section hidden reveal">
+        <div class="section-head">
+          <div>
+            <h2><i class="fa-solid fa-screwdriver-wrench"></i> لوحة تحكم الإدارة والأكواد</h2>
+            <p>تحكم كامل في الـ 500 كود المحفوظة، متابعة الأكواد المحروقة والطلاب المتصلين، ونشر الوسائط للجميع.</p>
           </div>
-          <div class="feature-top"><span class="feature-icon icon-amber"><i class="fa-solid fa-book-open-reader"></i></span><span class="feature-number">01</span></div>
-          <p class="feature-label">LEARN & UNDERSTAND</p>
-          <h3>المحتوى الدراسي</h3>
-          <p class="feature-description">مساحة منظمة للدروس والمراجعات والملخصات التي تساعدك على الفهم وربط الأحداث.</p>
-          <a href="#updates" class="feature-link haptic-btn">استكشف المستجدات <i class="fa-solid fa-arrow-left"></i></a>
-        </article>
-
-        <article class="feature-card reveal searchable-item" data-title="مكتبة الفيديو">
-          <div class="card-top-actions">
-            <button type="button" class="favorite-btn haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
-          </div>
-          <div class="feature-top"><span class="feature-icon icon-blue"><i class="fa-solid fa-circle-play"></i></span><span class="feature-number">02</span></div>
-          <p class="feature-label">WATCH & DISCOVER</p>
-          <h3>مكتبة الفيديو</h3>
-          <p class="feature-description">مكان مخصص للشروحات المرئية والمراجعات، ويمكن إضافة روابط الدروس لاحقًا.</p>
-          <a href="#updates" class="feature-link haptic-btn">تعرّف على التحديثات <i class="fa-solid fa-arrow-left"></i></a>
-        </article>
-
-        <article class="feature-card reveal searchable-item" data-title="نصائح دراسية">
-          <div class="card-top-actions">
-            <button type="button" class="favorite-btn haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
-          </div>
-          <div class="feature-top"><span class="feature-icon icon-violet"><i class="fa-solid fa-lightbulb"></i></span><span class="feature-number">03</span></div>
-          <p class="feature-label">THINK & GROW</p>
-          <h3>نصائح دراسية</h3>
-          <p class="feature-description">أفكار عملية لتنظيم وقتك وتثبيت المعلومات وبناء عادة تعلّم متوازنة.</p>
-          <a href="#studyTips" class="feature-link haptic-btn">اقرأ النصائح <i class="fa-solid fa-arrow-left"></i></a>
-        </article>
-      </div>
-
-      <!-- منشورات الأدمن الخاصة بمساحات المعرفة / الفيديو / النصائح -->
-      <div id="dynamicLearningGrid" class="updates-grid" style="margin-top:20px;"></div>
-    </section>
-
-    <!-- قسم المستجدات والأخبار -->
-    <section id="updates" class="updates-section page-section">
-      <div class="section-heading reveal">
-        <div>
-          <p class="section-eyebrow">LATEST FROM THE PLATFORM</p>
-          <h2>آخر <span class="gold-text">المستجدات</span></h2>
-          <p>المحتوى الظاهر هنا نماذج توضيحية وتحديثات مباشرة من المنصة.</p>
-        </div>
-        <div class="section-actions-row">
-          <div class="search-box-wrap">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" class="section-search-input" placeholder="ابحث في المستجدات..." data-target="updatesGrid">
-          </div>
-          <span class="section-number">03 <i class="fa-regular fa-newspaper"></i></span>
-        </div>
-      </div>
-
-      <div id="updatesGrid" class="updates-grid">
-        <article class="update-card reveal searchable-item" data-title="تابع إعلانات المنصة والصورة الجديدة">
-          <div class="update-art art-news" style="padding: 0; overflow: hidden; position: relative;">
-            <span class="pulse-badge" title="يوجد تحديث جديد!"></span>
-            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب"><i class="fa-regular fa-bookmark"></i></button>
-            <img src="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg" alt="آخر الأخبار" class="zoomable-image" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-            <button type="button" class="view-image-btn haptic-btn" data-img="https://i.postimg.cc/J7j3kZ6h/1793316778086.jpg">
-              <i class="fa-solid fa-expand"></i> عرض ملء الشاشة وتنزيل الصورة
+          <div class="admin-top-actions">
+            <button type="button" id="sync500Btn" class="btn-primary">
+              <i class="fa-solid fa-database"></i>
+              <span>تأكيد وحفظ الـ 500 كود</span>
+            </button>
+            <button type="button" id="printPdfBtn" class="btn-secondary">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span>طباعة الأكواد PDF</span>
             </button>
           </div>
-          <div class="update-body">
-            <span class="update-tag">الأخبار</span>
-            <h3>تابع إعلانات المنصة</h3>
-            <p>سيُخصص هذا القسم لمواعيد المراجعات والتنبيهات الدراسية.</p>
-            <div class="update-meta"><span><i class="fa-regular fa-clock"></i> تحديثات المنصة</span><span>01</span></div>
-          </div>
-        </article>
-
-        <article class="update-card reveal searchable-item" data-title="مكتبة الشرح والمراجعة والفيديو التعليمي">
-          <div class="update-art art-video" style="padding: 0; height: 190px; position: relative; background: #000; overflow:hidden;">
-            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
-            <video id="platformVideo" class="custom-video-player" preload="auto" playsinline>
-              <source src="https://files.catbox.moe/1bgn17.mp4" type="video/mp4">
-              متصفحك لا يدعم تشغيل الفيديو.
-            </video>
-          </div>
-
-          <div class="video-bottom-toolbar" id="videoBottomToolbar">
-            <div class="vid-progress-container" id="vidProgressContainer">
-              <div class="vid-progress-bar" id="vidProgressBar"></div>
-            </div>
-            <div class="vid-controls-row">
-              <div class="vid-left-group">
-                <button type="button" id="vidPlayPauseBtn" class="vid-btn haptic-btn" title="تشغيل / إيقاف">
-                  <i class="fa-solid fa-play" id="vidPlayIcon"></i>
-                </button>
-                <span class="vid-time" id="vidTimeDisplay">0:00 / 0:00</span>
-              </div>
-              <div class="vid-right-group">
-                <button type="button" id="vidMuteBtn" class="vid-btn haptic-btn" title="كتم الصوت">
-                  <i class="fa-solid fa-volume-high" id="vidMuteIcon"></i>
-                </button>
-                <input type="range" id="vidVolumeSlider" class="vid-volume-slider" min="0" max="1" step="0.05" value="1" title="مستوى الصوت">
-                <button type="button" id="vidFullscreenBtn" class="vid-btn haptic-btn" title="ملء الشاشة بالكامل">
-                  <i class="fa-solid fa-expand"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="update-body">
-            <span class="update-tag blue-tag">الفيديوهات</span>
-            <h3>مكتبة الشرح والمراجعة</h3>
-            <p>فيديو الدرس الخاص بك يعمل بكفاءة تامة، تشغيل وصوت وشريط تحكم كامل.</p>
-            <div class="update-meta"><span><i class="fa-regular fa-circle-play"></i> محتوى مرئي</span><span>02</span></div>
-          </div>
-        </article>
-
-        <article id="studyTips" class="update-card reveal searchable-item" data-title="افهم العلاقة قبل حفظ التاريخ">
-          <div class="update-art art-tips" style="position:relative;">
-            <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب"><i class="fa-regular fa-bookmark"></i></button>
-            <i class="fa-solid fa-brain"></i><span>STUDY SMARTER</span>
-          </div>
-          <div class="update-body">
-            <span class="update-tag violet-tag">نصيحة</span>
-            <h3>افهم العلاقة قبل حفظ التاريخ</h3>
-            <p>اربط الحدث بأسبابه ونتائجه وشخصياته؛ فالفهم يجعل المراجعة أكثر معنى.</p>
-            <div class="update-meta"><span><i class="fa-regular fa-lightbulb"></i> نصيحة دراسية</span><span>03</span></div>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section id="community" class="community-section page-section reveal">
-      <div class="community-pattern"></div>
-      <div class="community-copy">
-        <p class="section-eyebrow">LEARN TOGETHER</p>
-        <h2>المعرفة تكبر <span>بالمشاركة</span></h2>
-        <p>تابع المجموعة المخصصة لطلاب تانية بكالوريا، وراجع تفاصيل المجموعة قبل الانضمام.</p>
-        <div class="community-note"><i class="fa-solid fa-circle-info"></i><span>تأكد أن المجموعة مناسبة لصفك قبل الدخول.</span></div>
-      </div>
-      <a class="whatsapp-btn haptic-btn" href="https://chat.whatsapp.com/LrNPKu3gZwZD2MFvWQDZ04?s=cl&p=a&mlu=4&ilr=4&iam=2" target="_blank" rel="noopener noreferrer">
-        <i class="fa-brands fa-whatsapp"></i>
-        <span><strong>الانضمام إلى جروب واتساب</strong><small>طلاب تانية بكالوريا</small></span>
-        <i class="fa-solid fa-arrow-up-left-from-circle arrow-circle"></i>
-      </a>
-    </section>
-
-    <!-- لوحة تحكم الأدمن الكاملة -->
-    <section id="adminPanel" class="content-section page-section hidden" style="padding-top:40px;padding-bottom:80px;">
-      <div class="section-heading">
-        <div>
-          <p class="section-eyebrow">ADMIN CONTROL CENTER</p>
-          <h2>لوحة تحكم <span class="gold-text">الأدمن</span></h2>
-          <p>ارفع الوسائط في أي قسم فوراً، وتابع الطلاب والهواتف المسجلة وحالة الاتصال، وأدِر الأكواد.</p>
         </div>
-        <span class="section-number"><i class="fa-solid fa-user-shield"></i> ADMIN</span>
-      </div>
 
-      <div class="admin-grid-layout">
-        <!-- 1. نموذج رفع الوسائط في أي قسم -->
-        <div class="admin-card">
-          <h3><i class="fa-solid fa-cloud-arrow-up"></i> نشر ورفع وسائط في أي قسم</h3>
-          <form id="adminUploadForm" class="admin-form">
-            <div class="auth-row-grid">
-              <div class="auth-field-group">
-                <label class="field-label">القسم المستهدف</label>
-                <div class="select-wrap">
-                  <i class="fa-solid fa-layer-group"></i>
-                  <select id="adminPostSection" required>
-                    <option value="updates">آخر المستجدات (Updates)</option>
-                    <option value="learning">المحتوى الدراسي (Learning)</option>
-                    <option value="video">مكتبة الفيديو (Video)</option>
-                    <option value="tips">نصائح دراسية (Tips)</option>
-                    <option value="community">مجتمعنا (Community)</option>
-                  </select>
-                </div>
-              </div>
-              <div class="auth-field-group">
-                <label class="field-label">تصنيف الوسيط</label>
-                <div class="select-wrap">
-                  <i class="fa-solid fa-photo-film"></i>
-                  <select id="adminMediaType" required>
-                    <option value="image">صورة</option>
-                    <option value="video">فيديو</option>
-                    <option value="audio">تسجيل صوتي</option>
-                    <option value="none">منشور نصي فقط</option>
-                  </select>
-                </div>
-              </div>
+        <!-- إحصائيات الأكواد -->
+        <div class="admin-kpi-grid">
+          <div class="kpi-card">
+            <span>إجمالي الأكواد المعتمدة</span>
+            <strong id="kpiTotalCodes">500</strong>
+          </div>
+          <div class="kpi-card burned">
+            <span>🔥 الأكواد المحروقة (المستخدمة)</span>
+            <strong id="kpiBurnedCodes">0</strong>
+          </div>
+          <div class="kpi-card available">
+            <span>✅ الأكواد المتاحة للبيع</span>
+            <strong id="kpiAvailableCodes">500</strong>
+          </div>
+          <div class="kpi-card online">
+            <span>● المتصلون الآن</span>
+            <strong id="kpiOnlineNow">0</strong>
+          </div>
+        </div>
+
+        <!-- فورم نشر الوسائط -->
+        <div class="admin-card-box">
+          <h3><i class="fa-solid fa-cloud-arrow-up"></i> نشر محتوى أو وسائط جديدة للطلاب</h3>
+          <form id="adminUploadForm" class="admin-upload-grid">
+            <div class="form-group">
+              <label for="adminPostSection">القسم</label>
+              <select id="adminPostSection">
+                <option value="updates">آخر التحديثات والأخبار</option>
+                <option value="video">الفيديوهات والشروحات</option>
+                <option value="tips">المحتوى التعليمي والملخصات</option>
+              </select>
             </div>
 
-            <div class="auth-field-group">
-              <label class="field-label">عنوان المنشور</label>
-              <div class="input-wrap">
-                <i class="fa-solid fa-heading"></i>
-                <input id="adminPostTitle" type="text" required placeholder="مثال: مراجعة الفصل الأول - أ. محمد الجداوي">
-              </div>
+            <div class="form-group">
+              <label for="adminMediaType">نوع المرفق</label>
+              <select id="adminMediaType">
+                <option value="none">نص فقط بدون ملف</option>
+                <option value="image">صورة</option>
+                <option value="video">فيديو</option>
+                <option value="audio">ملف صوتي</option>
+              </select>
             </div>
 
-            <div class="auth-field-group">
-              <label class="field-label">الوصف أو الملاحظة</label>
-              <div class="input-wrap">
-                <i class="fa-regular fa-note-sticky"></i>
-                <input id="adminPostDesc" type="text" placeholder="اكتب تفاصيل مختصرة تظهر للطلاب...">
-              </div>
+            <div class="form-group">
+              <label for="adminPostTitle">عنوان المنشور</label>
+              <input type="text" id="adminPostTitle" placeholder="مثال: مراجعة الفصل الأول" required />
             </div>
 
-            <div class="auth-field-group" id="adminFileGroup">
-              <label class="field-label">اختر ملف (صورة / فيديو / صوت) من جهازك</label>
-              <div class="input-wrap">
-                <i class="fa-solid fa-file-arrow-up"></i>
-                <input id="adminMediaFile" type="file" accept="image/*,video/*,audio/*" style="height:auto;padding:10px 0;">
-              </div>
+            <div class="form-group">
+              <label for="adminMediaFile">اختيار ملف (صورة / فيديو / صوت)</label>
+              <input type="file" id="adminMediaFile" accept="image/*,video/*,audio/*" />
             </div>
 
-            <button type="submit" id="adminUploadBtn" class="primary-btn haptic-btn">
-              <i class="fa-solid fa-paper-plane"></i>
-              <span>نشر الآن للجميع</span>
-            </button>
+            <div class="form-group full-span">
+              <label for="adminPostDesc">تفاصيل المنشور</label>
+              <textarea id="adminPostDesc" rows="3" placeholder="اكتب تفاصيل الشرح أو التنبيه هنا..."></textarea>
+            </div>
+
+            <div class="full-span">
+              <button type="submit" id="adminUploadBtn" class="btn-primary">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>نشر الآن للجميع</span>
+              </button>
+            </div>
           </form>
         </div>
 
-        <!-- 2. توليد 500 كود وتصدير CSV -->
-        <div class="admin-card">
-          <h3><i class="fa-solid fa-key"></i> إدارة الأكواد (توليد 500 كود + CSV)</h3>
-          <p style="font-size:12px;color:var(--muted);line-height:1.8;">
-            ولّد 500 كود دخول جديد بضغطة زر وحمّلهم كملف CSV جاهز للطباعة أو التوزيع، أو أوقف/فعّل أي كود.
-          </p>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;">
-            <button type="button" id="generate500Btn" class="primary-btn haptic-btn">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-              <span>توليد 500 كود</span>
-            </button>
-            <button type="button" id="exportCsvBtn" class="secondary-btn haptic-btn">
-              <i class="fa-solid fa-file-csv"></i>
-              <span>تصدير CSV</span>
-            </button>
+        <!-- جدول متابعة الأكواد والطلاب -->
+        <div class="admin-card-box">
+          <div class="table-toolbar">
+            <h3><i class="fa-solid fa-users-viewfinder"></i> سجل الأكواد والطلاب (معرفة الكود المحروق وحذف العضوية)</h3>
+            <div class="table-filters">
+              <input type="text" id="adminSearchInput" placeholder="ابحث بالكود أو الاسم أو الهاتف..." />
+              <select id="adminFilterSelect">
+                <option value="all">كل الأكواد (500)</option>
+                <option value="burned">🔥 الأكواد المحروقة فقط</option>
+                <option value="unused">✅ الأكواد غير المستخدمة</option>
+                <option value="online">● المتصلون الآن</option>
+              </select>
+            </div>
           </div>
-          <div id="adminCodesStats" style="font-size:12px;color:var(--gold);font-weight:700;"></div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>الكود</th>
+                  <th>حالة الكود</th>
+                  <th>اسم الطالب</th>
+                  <th>رقم الهاتف</th>
+                  <th>الاتصال</th>
+                  <th>آخر ظهور</th>
+                  <th>الأجهزة</th>
+                  <th>تحكم</th>
+                </tr>
+              </thead>
+              <tbody id="adminStudentsTbody">
+                <tr><td colspan="8" class="empty-cell">جارٍ تحميل البيانات...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <!-- 3. جدول متابعة الطلاب والهواتف وحالة التواجد -->
-      <div class="admin-card" style="margin-top:20px;">
-        <h3><i class="fa-solid fa-users-viewfinder"></i> متابعة الطلاب والأجهزة وحالة الاتصال</h3>
-        <div style="overflow-x:auto;">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>الكود</th>
-                <th>الاسم</th>
-                <th>الهاتف</th>
-                <th>الصف</th>
-                <th>الحالة</th>
-                <th>آخر زيارة</th>
-                <th>عدد الهواتف</th>
-                <th>إجراء</th>
-              </tr>
-            </thead>
-            <tbody id="adminStudentsTbody">
-              <tr><td colspan="8" style="text-align:center;color:var(--muted);">جارٍ التحميل...</td></tr>
-            </tbody>
-          </table>
+      <!-- قسم آخر التحديثات والفيديوهات -->
+      <section id="updatesSection" class="content-section reveal">
+        <div class="section-head">
+          <div>
+            <h2><i class="fa-solid fa-newspaper"></i> آخر التحديثات والفيديوهات</h2>
+            <p>كل ما يتم نشره من الإدارة يظهر هنا لحظياً.</p>
+          </div>
+          <input type="search" class="section-search-input" data-target="updatesGrid" placeholder="ابحث في التحديثات..." />
         </div>
-      </div>
-    </section>
-  </main>
+        <div id="updatesGrid" class="cards-grid"></div>
+      </section>
 
-  <footer class="site-footer">
-    <a href="#home" class="footer-brand"><i class="fa-solid fa-landmark"></i> تاريخ الرقي</a>
-    <p>التاريخ وعيٌ بالماضي، وبصيرةٌ للمستقبل.</p>
-    <span>© <span id="currentYear">2026</span> منصة تاريخ الرقي · إشراف الأستاذ محمد الجداوي</span>
-  </footer>
-</div>
+      <!-- قسم المحتوى التعليمي -->
+      <section id="learningSection" class="content-section reveal">
+        <div class="section-head">
+          <div>
+            <h2><i class="fa-solid fa-book-open-reader"></i> المحتوى التعليمي والملخصات</h2>
+            <p>مذكرات، خرائط ذهنية، وملفات صوتية مساعدة.</p>
+          </div>
+          <input type="search" class="section-search-input" data-target="dynamicLearningGrid" placeholder="ابحث في المحتوى التعليمي..." />
+        </div>
+        <div id="dynamicLearningGrid" class="cards-grid"></div>
+      </section>
+    </main>
 
-<!-- العارض المطور للصورة -->
-<div id="imageModal" class="image-modal hidden">
-  <div class="image-modal-backdrop"></div>
-  <div class="image-modal-content">
-    <div class="modal-header-actions">
-      <div class="quality-selector">
-        <button type="button" class="q-btn active haptic-btn" data-quality="hd">عالية (HD)</button>
-        <button type="button" class="q-btn haptic-btn" data-quality="4k">فائقة (4K)</button>
-        <button type="button" class="q-btn haptic-btn" data-quality="normal">عادية</button>
+    <footer class="site-footer">
+      <div class="container">
+        <p>© <span id="currentYear"></span> منصة تاريخ الرُّقي — الأستاذ محمد الجداوي. جميع الحقوق محفوظة.</p>
       </div>
-      <div class="modal-tools">
-        <button type="button" id="downloadImgBtn" class="tool-btn haptic-btn" title="تنزيل الصورة الحقيقية"><i class="fa-solid fa-download"></i></button>
-        <button type="button" id="rotateImgBtn" class="tool-btn haptic-btn" title="تدوير الصورة"><i class="fa-solid fa-rotate-right"></i></button>
-        <button type="button" id="fullscreenImgBtn" class="tool-btn haptic-btn" title="ملء الشاشة بالكامل"><i class="fa-solid fa-expand"></i></button>
-        <button id="closeModalBtn" class="close-modal-btn haptic-btn" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+    </footer>
+  </div>
+
+  <!-- عارض الصور -->
+  <div id="imageModal" class="image-modal hidden">
+    <div class="image-modal-backdrop"></div>
+    <div id="modalImgContainerBox" class="image-modal-box">
+      <img id="modalImage" src="" alt="معاينة الصورة" />
+      <div class="image-modal-controls">
+        <button type="button" id="rotateImgBtn" class="btn-secondary"><i class="fa-solid fa-rotate-right"></i> تدوير</button>
+        <button type="button" id="downloadImgBtn" class="btn-primary"><i class="fa-solid fa-download"></i> تنزيل</button>
+        <button type="button" id="closeModalBtn" class="btn-danger"><i class="fa-solid fa-xmark"></i> إغلاق</button>
       </div>
-    </div>
-    <div class="modal-img-container" id="modalImgContainerBox">
-      <img id="modalImage" src="" alt="صورة مكبرة">
     </div>
   </div>
-</div>
 
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js" defer></script>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
 </body>
 </html>

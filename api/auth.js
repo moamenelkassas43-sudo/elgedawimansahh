@@ -1,135 +1,137 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+const ALLOWED_500_CODES = new Set(
+  Array.from({ length: 500 }, (_, i) => String(10101 + i))
 );
 
-const ADMIN_CODE = (process.env.ADMIN_CODE || '99999').trim().toUpperCase();
-
-// حماية بسيطة ضد التخمين العشوائي في الذاكرة
-const failedAttempts = new Map();
-
-function checkRateLimit(ip) {
-  const now = Date.now();
-  const entry = failedAttempts.get(ip) || { count: 0, resetAt: now + 60000 };
-  if (now > entry.resetAt) {
-    entry.count = 0;
-    entry.resetAt = now + 60000;
-  }
-  if (entry.count >= 8) return false;
-  failedAttempts.set(ip, entry);
-  return true;
-}
-
-function recordFail(ip) {
-  const now = Date.now();
-  const entry = failedAttempts.get(ip) || { count: 0, resetAt: now + 60000 };
-  entry.count += 1;
-  failedAttempts.set(ip, entry);
-}
-
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ ok: false, message: 'Method not allowed' });
-  }
-
-  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-  const { action, code, name, phone, grade, gender, deviceId, deviceLabel } = req.body || {};
-  const cleanCode = String(code || '').trim().toUpperCase();
-
-  if (!cleanCode) {
-    return res.status(400).json({ ok: false, message: 'الكود مطلوب.' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ ok: false, message: "Method not allowed" });
   }
 
   try {
-    if (action === 'heartbeat') {
-      await supabase
-        .from('students_access')
-        .update({ is_online: true, last_seen: new Date().toISOString() })
-        .eq('access_code', cleanCode);
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const adminCode = String(process.env.ADMIN_CODE || "99999").trim().toUpperCase();
+
+    if (!supabaseUrl || !serviceKey) {
+      return res.status(500).json({ ok: false, message: "Missing Supabase environment variables" });
+    }
+
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
+    const action = String(body.action || "login").trim().toLowerCase();
+    const rawCode = String(body.code || body.access_code || "").trim().toUpperCase();
+
+    const headers = {
+      apikey: serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation"
+    };
+
+    if (action === "heartbeat") {
+      if (!rawCode) return res.status(200).json({ ok: true });
+      await fetch(`${supabaseUrl}/rest/v1/students_access?access_code=eq.${encodeURIComponent(rawCode)}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ is_online: true, last_seen: new Date().toISOString() })
+      });
       return res.status(200).json({ ok: true });
     }
 
-    if (action === 'logout') {
-      await supabase
-        .from('students_access')
-        .update({ is_online: false, last_seen: new Date().toISOString() })
-        .eq('access_code', cleanCode);
+    if (action === "logout") {
+      if (!rawCode) return res.status(200).json({ ok: true });
+      await fetch(`${supabaseUrl}/rest/v1/students_access?access_code=eq.${encodeURIComponent(rawCode)}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ is_online: false, last_seen: new Date().toISOString() })
+      });
       return res.status(200).json({ ok: true });
     }
 
-    if (!checkRateLimit(ip)) {
-      return res.status(429).json({ ok: false, message: 'محاولات كثيرة، انتظر دقيقة ثم أعد المحاولة.' });
+    if (!rawCode || rawCode.length !== 5) {
+      return res.status(400).json({ ok: false, message: "أدخل كود الدخول الصحيح المكون من 5 أرقام." });
     }
 
-    // دخول الأدمن
-    if (cleanCode === ADMIN_CODE) {
-      return res.status(200).json({
-        ok: true,
-        user: {
-          access_code: cleanCode,
-          full_name: 'الأستاذ محمد الجداوي / المدير',
-          is_admin: true,
-          gender: 'male'
-        }
+    const isAdmin = rawCode === adminCode || rawCode === "ADMIN";
+    const isPreSavedCode = ALLOWED_500_CODES.has(rawCode);
+
+    if (!isAdmin && !isPreSavedCode) {
+      return res.status(401).json({
+        ok: false,
+        message: "هذا الكود غير معتمد. تواصل مع إدارة المنصة للحصول على كود دخول."
       });
     }
 
-    // البحث عن الكود في جدول الأكواد/الطلاب
-    const { data: existing, error: findErr } = await supabase
-      .from('students_access')
-      .select('*')
-      .eq('access_code', cleanCode)
-      .maybeSingle();
-
-    if (findErr) throw findErr;
-
-    if (!existing) {
-      recordFail(ip);
-      return res.status(401).json({ ok: false, message: 'الكود غير صحيح أو غير مسجل.' });
+    const lookupRes = await fetch(
+      `${supabaseUrl}/rest/v1/students_access?access_code=eq.${encodeURIComponent(rawCode)}&select=*`,
+      { headers }
+    );
+    if (!lookupRes.ok) {
+      const errText = await lookupRes.text();
+      return res.status(500).json({ ok: false, message: `خطأ قاعدة البيانات: ${errText}` });
     }
 
-    if (existing.is_active === false) {
-      return res.status(403).json({ ok: false, message: 'تم إيقاف هذا الكود بواسطة الإدارة.' });
+    const rows = await lookupRes.json();
+    let userRecord = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+
+    if (userRecord && userRecord.is_active === false && !isAdmin) {
+      return res.status(403).json({
+        ok: false,
+        message: "تم إيقاف هذا الكود من قبل الإدارة."
+      });
     }
 
-    // تحديث قائمة الأجهزة (الهواتف) التي دخل منها الطالب
-    const currentDevices = Array.isArray(existing.devices) ? existing.devices : [];
-    const devId = String(deviceId || 'unknown-device');
-    const alreadyHasDev = currentDevices.some(d => d && d.id === devId);
-    const updatedDevices = alreadyHasDev
-      ? currentDevices.map(d => (d.id === devId ? { ...d, lastUsed: new Date().toISOString() } : d))
-      : [...currentDevices, { id: devId, label: String(deviceLabel || 'هاتف'), firstUsed: new Date().toISOString() }];
+    const deviceId = String(body.deviceId || "").trim();
+    const deviceLabel = String(body.deviceLabel || "").trim();
+    let devices = Array.isArray(userRecord?.devices) ? [...userRecord.devices] : [];
+    if (deviceId && !devices.some(d => (typeof d === "string" ? d === deviceId : d?.id === deviceId))) {
+      devices.push({ id: deviceId, label: deviceLabel || "جهاز", at: new Date().toISOString() });
+    }
 
-    const updatePayload = {
+    const cleanName = String(body.name || body.full_name || "").trim();
+    const cleanPhone = String(body.phone || "").trim();
+
+    const payload = {
+      access_code: rawCode,
+      full_name: cleanName || userRecord?.full_name || (isAdmin ? "الأستاذ محمد الجداوي" : `طالب (${rawCode})`),
+      phone: cleanPhone || userRecord?.phone || null,
+      is_admin: isAdmin || Boolean(userRecord?.is_admin),
+      is_active: true,
       is_online: true,
       last_seen: new Date().toISOString(),
-      devices: updatedDevices
+      devices
     };
 
-    // تسجيل بيانات الطالب عند أول دخول أو تحديثها إذا لم تكن مسجلة
-    if (!existing.full_name && name) {
-      updatePayload.full_name = String(name).trim();
-      updatePayload.phone = String(phone || '').trim();
-      updatePayload.grade = String(grade || '').trim();
-      updatePayload.gender = gender === 'female' ? 'female' : 'male';
+    if (userRecord) {
+      const patchRes = await fetch(
+        `${supabaseUrl}/rest/v1/students_access?id=eq.${encodeURIComponent(userRecord.id)}`,
+        { method: "PATCH", headers, body: JSON.stringify(payload) }
+      );
+      if (!patchRes.ok) {
+        const errText = await patchRes.text();
+        return res.status(500).json({ ok: false, message: `فشل تحديث البيانات: ${errText}` });
+      }
+      const updated = await patchRes.json();
+      userRecord = Array.isArray(updated) && updated.length > 0 ? updated[0] : { ...userRecord, ...payload };
+    } else {
+      const insertRes = await fetch(`${supabaseUrl}/rest/v1/students_access`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload)
+      });
+      if (!insertRes.ok) {
+        const errText = await insertRes.text();
+        return res.status(500).json({ ok: false, message: `فشل إنشاء السجل: ${errText}` });
+      }
+      const created = await insertRes.json();
+      userRecord = Array.isArray(created) && created.length > 0 ? created[0] : payload;
     }
-
-    const { data: updatedUser, error: updErr } = await supabase
-      .from('students_access')
-      .update(updatePayload)
-      .eq('access_code', cleanCode)
-      .select('*')
-      .single();
-
-    if (updErr) throw updErr;
 
     return res.status(200).json({
       ok: true,
-      user: { ...updatedUser, is_admin: false }
+      user: userRecord,
+      is_admin: Boolean(userRecord.is_admin || isAdmin)
     });
   } catch (err) {
-    return res.status(500).json({ ok: false, message: err.message || 'خطأ في السيرفر' });
+    return res.status(500).json({ ok: false, message: err.message || "Unexpected auth error" });
   }
 }

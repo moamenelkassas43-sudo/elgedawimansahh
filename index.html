@@ -20,7 +20,7 @@
 <canvas id="particlesCanvas" aria-hidden="true"></canvas>
 <div class="noise-layer" aria-hidden="true"></div>
 
-<!-- واجهة تسجيل الدخول -->
+<!-- واجهة تسجيل الدخول بالكود + البيانات -->
 <section id="authModal" class="auth-shell" aria-labelledby="authTitle">
   <div class="auth-card glass reveal">
     <div class="auth-topline">
@@ -53,50 +53,60 @@
 
     <form id="loginForm" class="auth-form">
       <div class="auth-field-group">
-        <label class="field-label" for="studentName">الاسم الثلاثي للطالب</label>
+        <label class="field-label" for="accessCode">كود الدخول (٥ خانات)</label>
         <div class="input-wrap">
-          <i class="fa-regular fa-user"></i>
-          <input id="studentName" name="name" type="text" autocomplete="name" minlength="5" maxlength="90" required placeholder="اكتب اسمك الثلاثي بوضوح">
+          <i class="fa-solid fa-key"></i>
+          <input id="accessCode" name="code" type="text" maxlength="5" minlength="5" required placeholder="مثال: 10293 أو كود المدير" style="letter-spacing:3px;font-weight:800;">
         </div>
       </div>
 
-      <div class="auth-row-grid">
-        <div class="auth-field-group">
-          <label class="field-label" for="studentGrade">الصف الدراسي</label>
-          <div class="select-wrap">
-            <i class="fa-solid fa-book-open"></i>
-            <select id="studentGrade" name="grade" required>
-              <option value="الأول الثانوي">الأول الثانوي</option>
-              <option value="الثاني الثانوي">الثاني الثانوي</option>
-              <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا😎)</option>
-              <option value="الثالث الثانوي">الثالث الثانوي</option>
-            </select>
+      <div id="studentExtraFields">
+        <div class="auth-field-group" style="margin-bottom:14px;">
+          <label class="field-label" for="studentName">الاسم الثلاثي للطالب</label>
+          <div class="input-wrap">
+            <i class="fa-regular fa-user"></i>
+            <input id="studentName" name="name" type="text" autocomplete="name" minlength="5" maxlength="90" required placeholder="اكتب اسمك الثلاثي بوضوح">
+          </div>
+        </div>
+
+        <div class="auth-row-grid" style="margin-bottom:14px;">
+          <div class="auth-field-group">
+            <label class="field-label" for="studentGrade">الصف الدراسي</label>
+            <div class="select-wrap">
+              <i class="fa-solid fa-book-open"></i>
+              <select id="studentGrade" name="grade" required>
+                <option value="الأول الثانوي">الأول الثانوي</option>
+                <option value="الثاني الثانوي">الثاني الثانوي</option>
+                <option value="الثاني الثانوي (البكالوريا)">الثاني الثانوي (البكالوريا😎)</option>
+                <option value="الثالث الثانوي">الثالث الثانوي</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="auth-field-group">
+            <label class="field-label" for="studentGender">نوع الثيم (تنسيق المنصة)</label>
+            <div class="select-wrap">
+              <i class="fa-solid fa-venus-mars"></i>
+              <select id="studentGender" name="gender" required>
+                <option value="male">ولد (💙)</option>
+                <option value="female">بنت (💕)</option>
+              </select>
+            </div>
           </div>
         </div>
 
         <div class="auth-field-group">
-          <label class="field-label" for="studentGender">نوع الثيم (تنسيق المنصة)</label>
-          <div class="select-wrap">
-            <i class="fa-solid fa-venus-mars"></i>
-            <select id="studentGender" name="gender" required>
-              <option value="male">ولد (💙)</option>
-              <option value="female">بنت (💕)</option>
-            </select>
+          <label class="field-label" for="studentPhone">رقم الهاتف المصري</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+            <input id="studentPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" pattern="01[0125][0-9]{8}" maxlength="11" required placeholder="01xxxxxxxxx">
           </div>
-        </div>
-      </div>
-
-      <div class="auth-field-group">
-        <label class="field-label" for="studentPhone">رقم الهاتف المصري</label>
-        <div class="input-wrap">
-          <i class="fa-solid fa-mobile-screen-button"></i>
-          <input id="studentPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" pattern="01[0125][0-9]{8}" maxlength="11" required placeholder="01xxxxxxxxx">
         </div>
       </div>
 
       <p class="privacy-note">
         <i class="fa-solid fa-shield-halved"></i>
-        بياناتك مسجلة بأمان في جلستك الخاصة.
+        بياناتك وكودك محفوظان ومؤمّنان عبر السيرفر.
       </p>
 
       <button id="submitBtn" type="submit" class="primary-btn haptic-btn">
@@ -134,6 +144,7 @@
         <a class="nav-link" href="#learning"><i class="fa-solid fa-compass"></i> محتوى المنصة</a>
         <a class="nav-link" href="#updates"><i class="fa-regular fa-newspaper"></i> المستجدات <span class="nav-pulse-dot"></span></a>
         <a class="nav-link" href="#community"><i class="fa-solid fa-people-group"></i> مجتمعنا</a>
+        <a class="nav-link hidden" id="adminNavLink" href="#adminPanel"><i class="fa-solid fa-user-shield"></i> لوحة الأدمن</a>
       </nav>
 
       <div class="header-actions">
@@ -167,6 +178,7 @@
       <a href="#learning">محتوى المنصة</a>
       <a href="#updates">المستجدات</a>
       <a href="#community">مجتمعنا</a>
+      <a href="#adminPanel" id="mobileAdminLink" class="hidden">لوحة الأدمن</a>
     </nav>
   </header>
 
@@ -227,7 +239,7 @@
       </div>
       <div class="student-meta">
         <div><span>الصف الدراسي</span><strong id="displayGrade">—</strong></div>
-        <div><span>كود الجلسة</span><strong id="displayUniqueCode">—</strong></div>
+        <div><span>كود الدخول</span><strong id="displayUniqueCode">—</strong></div>
       </div>
     </section>
 
@@ -282,15 +294,18 @@
           <a href="#studyTips" class="feature-link haptic-btn">اقرأ النصائح <i class="fa-solid fa-arrow-left"></i></a>
         </article>
       </div>
+
+      <!-- منشورات الأدمن الخاصة بمساحات المعرفة / الفيديو / النصائح -->
+      <div id="dynamicLearningGrid" class="updates-grid" style="margin-top:20px;"></div>
     </section>
 
-    <!-- قسم المستجدات والأخبار (فيديو Catbox المباشر مع شريط التحكم السفلي) -->
+    <!-- قسم المستجدات والأخبار -->
     <section id="updates" class="updates-section page-section">
       <div class="section-heading reveal">
         <div>
           <p class="section-eyebrow">LATEST FROM THE PLATFORM</p>
           <h2>آخر <span class="gold-text">المستجدات</span></h2>
-          <p>المحتوى الظاهر هنا نماذج توضيحية قابلة للتحديث.</p>
+          <p>المحتوى الظاهر هنا نماذج توضيحية وتحديثات مباشرة من المنصة.</p>
         </div>
         <div class="section-actions-row">
           <div class="search-box-wrap">
@@ -319,18 +334,15 @@
           </div>
         </article>
 
-        <!-- مشغل فيديو Catbox المباشر المربوط برابطك 1bgn17 -->
         <article class="update-card reveal searchable-item" data-title="مكتبة الشرح والمراجعة والفيديو التعليمي">
           <div class="update-art art-video" style="padding: 0; height: 190px; position: relative; background: #000; overflow:hidden;">
             <button type="button" class="favorite-btn-absolute haptic-btn" title="حفظ أو إعجاب بالمقطع"><i class="fa-regular fa-bookmark"></i></button>
-            
             <video id="platformVideo" class="custom-video-player" preload="auto" playsinline>
               <source src="https://files.catbox.moe/1bgn17.mp4" type="video/mp4">
               متصفحك لا يدعم تشغيل الفيديو.
             </video>
           </div>
 
-          <!-- شريط التحكم السفلي المستقل تحت الفيديو تماماً -->
           <div class="video-bottom-toolbar" id="videoBottomToolbar">
             <div class="vid-progress-container" id="vidProgressContainer">
               <div class="vid-progress-bar" id="vidProgressBar"></div>
@@ -391,6 +403,126 @@
         <i class="fa-solid fa-arrow-up-left-from-circle arrow-circle"></i>
       </a>
     </section>
+
+    <!-- لوحة تحكم الأدمن الكاملة -->
+    <section id="adminPanel" class="content-section page-section hidden" style="padding-top:40px;padding-bottom:80px;">
+      <div class="section-heading">
+        <div>
+          <p class="section-eyebrow">ADMIN CONTROL CENTER</p>
+          <h2>لوحة تحكم <span class="gold-text">الأدمن</span></h2>
+          <p>ارفع الوسائط في أي قسم فوراً، وتابع الطلاب والهواتف المسجلة وحالة الاتصال، وأدِر الأكواد.</p>
+        </div>
+        <span class="section-number"><i class="fa-solid fa-user-shield"></i> ADMIN</span>
+      </div>
+
+      <div class="admin-grid-layout">
+        <!-- 1. نموذج رفع الوسائط في أي قسم -->
+        <div class="admin-card">
+          <h3><i class="fa-solid fa-cloud-arrow-up"></i> نشر ورفع وسائط في أي قسم</h3>
+          <form id="adminUploadForm" class="admin-form">
+            <div class="auth-row-grid">
+              <div class="auth-field-group">
+                <label class="field-label">القسم المستهدف</label>
+                <div class="select-wrap">
+                  <i class="fa-solid fa-layer-group"></i>
+                  <select id="adminPostSection" required>
+                    <option value="updates">آخر المستجدات (Updates)</option>
+                    <option value="learning">المحتوى الدراسي (Learning)</option>
+                    <option value="video">مكتبة الفيديو (Video)</option>
+                    <option value="tips">نصائح دراسية (Tips)</option>
+                    <option value="community">مجتمعنا (Community)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="auth-field-group">
+                <label class="field-label">تصنيف الوسيط</label>
+                <div class="select-wrap">
+                  <i class="fa-solid fa-photo-film"></i>
+                  <select id="adminMediaType" required>
+                    <option value="image">صورة</option>
+                    <option value="video">فيديو</option>
+                    <option value="audio">تسجيل صوتي</option>
+                    <option value="none">منشور نصي فقط</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="auth-field-group">
+              <label class="field-label">عنوان المنشور</label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-heading"></i>
+                <input id="adminPostTitle" type="text" required placeholder="مثال: مراجعة الفصل الأول - أ. محمد الجداوي">
+              </div>
+            </div>
+
+            <div class="auth-field-group">
+              <label class="field-label">الوصف أو الملاحظة</label>
+              <div class="input-wrap">
+                <i class="fa-regular fa-note-sticky"></i>
+                <input id="adminPostDesc" type="text" placeholder="اكتب تفاصيل مختصرة تظهر للطلاب...">
+              </div>
+            </div>
+
+            <div class="auth-field-group" id="adminFileGroup">
+              <label class="field-label">اختر ملف (صورة / فيديو / صوت) من جهازك</label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-file-arrow-up"></i>
+                <input id="adminMediaFile" type="file" accept="image/*,video/*,audio/*" style="height:auto;padding:10px 0;">
+              </div>
+            </div>
+
+            <button type="submit" id="adminUploadBtn" class="primary-btn haptic-btn">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>نشر الآن للجميع</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- 2. توليد 500 كود وتصدير CSV -->
+        <div class="admin-card">
+          <h3><i class="fa-solid fa-key"></i> إدارة الأكواد (توليد 500 كود + CSV)</h3>
+          <p style="font-size:12px;color:var(--muted);line-height:1.8;">
+            ولّد 500 كود دخول جديد بضغطة زر وحمّلهم كملف CSV جاهز للطباعة أو التوزيع، أو أوقف/فعّل أي كود.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;">
+            <button type="button" id="generate500Btn" class="primary-btn haptic-btn">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span>توليد 500 كود</span>
+            </button>
+            <button type="button" id="exportCsvBtn" class="secondary-btn haptic-btn">
+              <i class="fa-solid fa-file-csv"></i>
+              <span>تصدير CSV</span>
+            </button>
+          </div>
+          <div id="adminCodesStats" style="font-size:12px;color:var(--gold);font-weight:700;"></div>
+        </div>
+      </div>
+
+      <!-- 3. جدول متابعة الطلاب والهواتف وحالة التواجد -->
+      <div class="admin-card" style="margin-top:20px;">
+        <h3><i class="fa-solid fa-users-viewfinder"></i> متابعة الطلاب والأجهزة وحالة الاتصال</h3>
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>الكود</th>
+                <th>الاسم</th>
+                <th>الهاتف</th>
+                <th>الصف</th>
+                <th>الحالة</th>
+                <th>آخر زيارة</th>
+                <th>عدد الهواتف</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="adminStudentsTbody">
+              <tr><td colspan="8" style="text-align:center;color:var(--muted);">جارٍ التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -424,6 +556,7 @@
 </div>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js" defer></script>
 </body>
 </html>

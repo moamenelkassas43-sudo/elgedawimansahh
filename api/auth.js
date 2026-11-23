@@ -1,101 +1,135 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+const ADMIN_CODE = (process.env.ADMIN_CODE || '99999').trim().toUpperCase();
+
+// حماية بسيطة ضد التخمين العشوائي في الذاكرة
+const failedAttempts = new Map();
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const entry = failedAttempts.get(ip) || { count: 0, resetAt: now + 60000 };
+  if (now > entry.resetAt) {
+    entry.count = 0;
+    entry.resetAt = now + 60000;
+  }
+  if (entry.count >= 8) return false;
+  failedAttempts.set(ip, entry);
+  return true;
+}
+
+function recordFail(ip) {
+  const now = Date.now();
+  const entry = failedAttempts.get(ip) || { count: 0, resetAt: now + 60000 };
+  entry.count += 1;
+  failedAttempts.set(ip, entry);
+}
+
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ ok: false, message: 'Method not allowed' });
+  }
+
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+  const { action, code, name, phone, grade, gender, deviceId, deviceLabel } = req.body || {};
+  const cleanCode = String(code || '').trim().toUpperCase();
+
+  if (!cleanCode) {
+    return res.status(400).json({ ok: false, message: 'الكود مطلوب.' });
   }
 
   try {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const adminCode = String(process.env.ADMIN_CODE || "99999").trim();
-
-    if (!supabaseUrl || !serviceKey) {
-      return res.status(500).json({ error: "Missing Supabase environment variables" });
+    if (action === 'heartbeat') {
+      await supabase
+        .from('students_access')
+        .update({ is_online: true, last_seen: new Date().toISOString() })
+        .eq('access_code', cleanCode);
+      return res.status(200).json({ ok: true });
     }
 
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-    const accessCode = String(body.access_code || body.accessCode || body.code || "").trim();
-    const fullName = String(body.full_name || body.fullName || body.name || "").trim();
-    const phone = String(body.phone || "").trim();
-    const grade = String(body.grade || "").trim();
-    const gender = String(body.gender || "male").trim();
-
-    if (!accessCode) {
-      return res.status(400).json({ error: "كود الدخول مطلوب" });
+    if (action === 'logout') {
+      await supabase
+        .from('students_access')
+        .update({ is_online: false, last_seen: new Date().toISOString() })
+        .eq('access_code', cleanCode);
+      return res.status(200).json({ ok: true });
     }
 
-    const headers = {
-      apikey: serviceKey,
-      Authorization: `Bearer ${serviceKey}`,
-      "Content-Type": "application/json",
-      Prefer: "return=representation"
-    };
-
-    const isAdmin = accessCode === adminCode;
-
-    const lookupRes = await fetch(
-      `${supabaseUrl}/rest/v1/students_access?access_code=eq.${encodeURIComponent(accessCode)}&select=*`,
-      { headers }
-    );
-
-    if (!lookupRes.ok) {
-      const errText = await lookupRes.text();
-      return res.status(500).json({ error: `Database error: ${errText}` });
+    if (!checkRateLimit(ip)) {
+      return res.status(429).json({ ok: false, message: 'محاولات كثيرة، انتظر دقيقة ثم أعد المحاولة.' });
     }
 
-    const existingRows = await lookupRes.json();
-    let userRecord = Array.isArray(existingRows) && existingRows.length > 0 ? existingRows[0] : null;
-
-    if (userRecord && userRecord.is_active === false && !isAdmin) {
-      return res.status(403).json({ error: "تم إيقاف هذا الكود من الإدارة" });
-    }
-
-    const payload = {
-      access_code: accessCode,
-      full_name: fullName || userRecord?.full_name || (isAdmin ? "الأستاذ محمد الجداوي" : "طالب"),
-      phone: phone || userRecord?.phone || "",
-      grade: grade || userRecord?.grade || "",
-      gender: gender || userRecord?.gender || "male",
-      is_admin: isAdmin || Boolean(userRecord?.is_admin),
-      is_active: true,
-      is_online: true,
-      last_seen: new Date().toISOString()
-    };
-
-    if (userRecord) {
-      const patchRes = await fetch(
-        `${supabaseUrl}/rest/v1/students_access?id=eq.${encodeURIComponent(userRecord.id)}`,
-        {
-          method: "PATCH",
-          headers,
-          body: JSON.stringify(payload)
+    // دخول الأدمن
+    if (cleanCode === ADMIN_CODE) {
+      return res.status(200).json({
+        ok: true,
+        user: {
+          access_code: cleanCode,
+          full_name: 'الأستاذ محمد الجداوي / المدير',
+          is_admin: true,
+          gender: 'male'
         }
-      );
-      if (!patchRes.ok) {
-        const errText = await patchRes.text();
-        return res.status(500).json({ error: `Update failed: ${errText}` });
-      }
-      const updated = await patchRes.json();
-      userRecord = Array.isArray(updated) && updated.length > 0 ? updated[0] : { ...userRecord, ...payload };
-    } else {
-      const insertRes = await fetch(`${supabaseUrl}/rest/v1/students_access`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(payload)
       });
-      if (!insertRes.ok) {
-        const errText = await insertRes.text();
-        return res.status(500).json({ error: `Insert failed: ${errText}` });
-      }
-      const created = await insertRes.json();
-      userRecord = Array.isArray(created) && created.length > 0 ? created[0] : payload;
     }
+
+    // البحث عن الكود في جدول الأكواد/الطلاب
+    const { data: existing, error: findErr } = await supabase
+      .from('students_access')
+      .select('*')
+      .eq('access_code', cleanCode)
+      .maybeSingle();
+
+    if (findErr) throw findErr;
+
+    if (!existing) {
+      recordFail(ip);
+      return res.status(401).json({ ok: false, message: 'الكود غير صحيح أو غير مسجل.' });
+    }
+
+    if (existing.is_active === false) {
+      return res.status(403).json({ ok: false, message: 'تم إيقاف هذا الكود بواسطة الإدارة.' });
+    }
+
+    // تحديث قائمة الأجهزة (الهواتف) التي دخل منها الطالب
+    const currentDevices = Array.isArray(existing.devices) ? existing.devices : [];
+    const devId = String(deviceId || 'unknown-device');
+    const alreadyHasDev = currentDevices.some(d => d && d.id === devId);
+    const updatedDevices = alreadyHasDev
+      ? currentDevices.map(d => (d.id === devId ? { ...d, lastUsed: new Date().toISOString() } : d))
+      : [...currentDevices, { id: devId, label: String(deviceLabel || 'هاتف'), firstUsed: new Date().toISOString() }];
+
+    const updatePayload = {
+      is_online: true,
+      last_seen: new Date().toISOString(),
+      devices: updatedDevices
+    };
+
+    // تسجيل بيانات الطالب عند أول دخول أو تحديثها إذا لم تكن مسجلة
+    if (!existing.full_name && name) {
+      updatePayload.full_name = String(name).trim();
+      updatePayload.phone = String(phone || '').trim();
+      updatePayload.grade = String(grade || '').trim();
+      updatePayload.gender = gender === 'female' ? 'female' : 'male';
+    }
+
+    const { data: updatedUser, error: updErr } = await supabase
+      .from('students_access')
+      .update(updatePayload)
+      .eq('access_code', cleanCode)
+      .select('*')
+      .single();
+
+    if (updErr) throw updErr;
 
     return res.status(200).json({
       ok: true,
-      user: userRecord,
-      is_admin: Boolean(userRecord.is_admin || isAdmin)
+      user: { ...updatedUser, is_admin: false }
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message || "Unexpected auth error" });
+    return res.status(500).json({ ok: false, message: err.message || 'خطأ في السيرفر' });
   }
 }

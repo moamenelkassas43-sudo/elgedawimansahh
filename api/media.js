@@ -1,54 +1,57 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+const ADMIN_CODE = (process.env.ADMIN_CODE || '99999').trim().toUpperCase();
+
 export default async function handler(req, res) {
-  if (req.method !== "POST" && req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ ok: false, message: 'Method not allowed' });
+  }
+
+  const { action, adminCode, postId, section, tag, title, description, media_type, media_url, created_by } = req.body || {};
+  if (String(adminCode || '').trim().toUpperCase() !== ADMIN_CODE) {
+    return res.status(403).json({ ok: false, message: 'صلاحية الأدمن مطلوبة.' });
   }
 
   try {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const anonKey = process.env.SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || (!serviceKey && !anonKey)) {
-      return res.status(500).json({ error: "Missing Supabase environment variables" });
-    }
-
-    const apiKey = serviceKey || anonKey;
-    const headers = {
-      apikey: apiKey,
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json"
-    };
-
-    if (req.method === "GET") {
-      const section = String(req.query?.section || "").trim();
-      const queryUrl = section
-        ? `${supabaseUrl}/rest/v1/platform_posts?section=eq.${encodeURIComponent(section)}&select=*&order=created_at.desc`
-        : `${supabaseUrl}/rest/v1/platform_posts?select=*&order=created_at.desc`;
-
-      const r = await fetch(queryUrl, { headers });
-      const data = await r.json();
-      if (!r.ok) {
-        return res.status(500).json({ error: data?.message || "Failed to load posts" });
+    if (action === 'create') {
+      if (!title || !section) {
+        return res.status(400).json({ ok: false, message: 'العنوان والقسم مطلوبان.' });
       }
-      return res.status(200).json({ ok: true, posts: Array.isArray(data) ? data : [] });
+      const { data, error } = await supabase
+        .from('platform_posts')
+        .insert([{
+          section: String(section).trim(),
+          tag: String(tag || 'تحديث').trim(),
+          title: String(title).trim(),
+          description: String(description || '').trim(),
+          media_type: String(media_type || 'none').trim(),
+          media_url: String(media_url || '').trim(),
+          created_by: String(created_by || 'الأدمن').trim()
+        }])
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      return res.status(200).json({ ok: true, post: data });
     }
 
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-    const action = String(body.action || "list").trim();
-
-    if (action === "list") {
-      const r = await fetch(`${supabaseUrl}/rest/v1/platform_posts?select=*&order=created_at.desc`, {
-        headers
-      });
-      const data = await r.json();
-      if (!r.ok) {
-        return res.status(500).json({ error: data?.message || "Failed to load posts" });
-      }
-      return res.status(200).json({ ok: true, posts: Array.isArray(data) ? data : [] });
+    if (action === 'delete') {
+      if (!postId) return res.status(400).json({ ok: false, message: 'معرف المنشور مطلوب.' });
+      const { error } = await supabase
+        .from('platform_posts')
+        .delete()
+        .eq('id', postId);
+      if (error) throw error;
+      return res.status(200).json({ ok: true });
     }
 
-    return res.status(400).json({ error: "Unsupported media action" });
+    return res.status(400).json({ ok: false, message: 'إجراء غير معروف.' });
   } catch (err) {
-    return res.status(500).json({ error: err.message || "Unexpected media error" });
+    return res.status(500).json({ ok: false, message: err.message || 'خطأ في السيرفر' });
   }
 }

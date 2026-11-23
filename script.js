@@ -5,6 +5,9 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_AbaWu56bbGhcJjL3F7DCgg_oXrWKkdj';
   const STORAGE_BUCKET = 'media';
 
+  // الـ 500 كود المحفوظة في المنصة (10101 إلى 10600)
+  const PRE_SAVED_500_CODES = Array.from({ length: 500 }, (_, i) => String(10101 + i));
+
   const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -15,7 +18,6 @@
   const loginForm = $('#loginForm');
   const accessCodeInput = $('#accessCode');
   const studentExtraFields = $('#studentExtraFields');
-  const genderSelect = $('#studentGender');
   const authMessage = $('#authMessage');
   const toast = $('#toast');
   const bellBtn = $('#bellBtn');
@@ -29,27 +31,12 @@
   const themeToggleBtn = $('#themeToggleBtn');
   const themeIcon = $('#themeIcon');
 
-  // مشغل الفيديو الأساسي
-  const platformVideo = $('#platformVideo');
-  const vidPlayPauseBtn = $('#vidPlayPauseBtn');
-  const vidPlayIcon = $('#vidPlayIcon');
-  const vidMuteBtn = $('#vidMuteBtn');
-  const vidMuteIcon = $('#vidMuteIcon');
-  const vidVolumeSlider = $('#vidVolumeSlider');
-  const vidFullscreenBtn = $('#vidFullscreenBtn');
-  const vidProgressContainer = $('#vidProgressContainer');
-  const vidProgressBar = $('#vidProgressBar');
-  const vidTimeDisplay = $('#vidTimeDisplay');
-
-  // العارض
+  // عارض الصور
   const imageModal = $('#imageModal');
   const modalImage = $('#modalImage');
-  const modalImgContainerBox = $('#modalImgContainerBox');
   const closeModalBtn = $('#closeModalBtn');
   const rotateImgBtn = $('#rotateImgBtn');
   const downloadImgBtn = $('#downloadImgBtn');
-  const fullscreenImgBtn = $('#fullscreenImgBtn');
-  const qualityBtns = $$('.q-btn');
   const particlesCanvas = $('#particlesCanvas');
 
   // عناصر الأدمن
@@ -58,16 +45,17 @@
   const adminPanel = $('#adminPanel');
   const adminUploadForm = $('#adminUploadForm');
   const adminUploadBtn = $('#adminUploadBtn');
-  const generate500Btn = $('#generate500Btn');
-  const exportCsvBtn = $('#exportCsvBtn');
-  const adminCodesStats = $('#adminCodesStats');
+  const sync500Btn = $('#sync500Btn');
+  const printPdfBtn = $('#printPdfBtn');
   const adminStudentsTbody = $('#adminStudentsTbody');
+  const adminSearchInput = $('#adminSearchInput');
+  const adminFilterSelect = $('#adminFilterSelect');
 
-  const SESSION_KEY = 'tareekh_alroqi_session_v3';
+  const SESSION_KEY = 'tareekh_alroqi_session_v4';
   const DEVICE_KEY = 'tareekh_alroqi_device_id';
-  const FAVORITES_KEY = 'tareekh_alroqi_favorites_v2';
 
   let currentSession = null;
+  let allAdminStudents = [];
   let heartbeatTimer = null;
   let toastTimer;
   let activeImgSrc = '';
@@ -100,64 +88,45 @@
   }
 
   function normalizePhone(phone) {
-    return String(phone || '').replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/\s+/g, '');
+    return String(phone || '')
+      .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+      .replace(/\s+/g, '');
   }
 
   function validateStudentInput(data) {
     const code = String(data.code || '').trim().toUpperCase();
     const name = String(data.name || '').trim().replace(/\s+/g, ' ');
     const phone = normalizePhone(String(data.phone || '').trim());
-    const allowedGrades = ['الأول الثانوي', 'الثاني الثانوي', 'الثاني الثانوي (البكالوريا)', 'الثالث الثانوي'];
 
-    if (!code || code.length !== 5) throw new Error('أدخل كود الدخول المكون من 5 خانات.');
+    if (!code || code.length !== 5) throw new Error('أدخل كود الدخول المكون من 5 أرقام.');
     if (name.length < 5 || name.split(' ').length < 3) throw new Error('اكتب الاسم الثلاثي على الأقل.');
     if (!/^01[0125]\d{8}$/.test(phone)) throw new Error('اكتب رقم هاتف مصري صحيحًا مكونًا من 11 رقمًا.');
-    if (!allowedGrades.includes(data.grade)) throw new Error('اختر صفًا دراسيًا صحيحًا.');
-    return { code, name, phone, grade: data.grade, gender: data.gender };
+    return { code, name, phone };
   }
 
-  // عند كتابة كود الأدمن يمكن تسهيل الدخول دون إلزام حقول الطالب
   accessCodeInput?.addEventListener('input', () => {
-    const val = accessCodeInput.value.trim();
-    const isAdminCode = val === '99999' || val.toUpperCase() === 'ADMIN';
+    const val = accessCodeInput.value.trim().toUpperCase();
+    const isAdminCode = val === '99999' || val === 'ADMIN';
     if (studentExtraFields) {
       studentExtraFields.style.opacity = isAdminCode ? '0.45' : '1';
-      $$('#studentExtraFields input, #studentExtraFields select').forEach(el => {
+      $$('#studentExtraFields input').forEach(el => {
         el.required = !isAdminCode;
       });
     }
   });
 
-  function setTheme(gender) {
-    const isFemale = gender === 'female';
-    document.body.classList.toggle('theme-female', isFemale);
-    document.body.classList.toggle('theme-male', !isFemale);
-    if (themeIcon) {
-      themeIcon.className = document.body.classList.contains('theme-female') ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-    }
-  }
-
   themeToggleBtn?.addEventListener('click', () => {
-    const isFemale = document.body.classList.contains('theme-female');
-    if (isFemale) {
-      document.body.classList.remove('theme-female');
-      document.body.classList.add('theme-male');
-      if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
-      showToast('تم التبديل للوضع الليلي');
-    } else {
-      document.body.classList.remove('theme-male');
-      document.body.classList.add('theme-female');
-      if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
-      showToast('تم التبديل للوضع النهاري');
+    const isLight = document.body.classList.toggle('theme-light');
+    if (themeIcon) {
+      themeIcon.className = isLight ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
     }
+    showToast(isLight ? 'تم التبديل للوضع النهاري' : 'تم التبديل للوضع الليلي');
   });
 
   function renderSession(session) {
     currentSession = session;
     $('#displayName').textContent = session.full_name || 'المدير';
-    $('#displayGrade').textContent = session.is_admin ? 'إدارة المنصة' : (session.grade || '—');
     $('#displayUniqueCode').textContent = session.access_code || '—';
-    setTheme(session.gender || 'male');
 
     const isAdmin = Boolean(session.is_admin);
     adminNavLink?.classList.toggle('hidden', !isAdmin);
@@ -169,9 +138,6 @@
     renderSession(session);
     authModal.classList.add('hidden');
     mainApp.classList.remove('hidden');
-    mainApp.classList.add('is-ready');
-    setupReveal();
-    setupFavorites();
     setupSearch();
     loadPosts();
     startHeartbeat();
@@ -210,7 +176,7 @@
     try {
       const rawCode = (accessCodeInput?.value || '').trim().toUpperCase();
       if (!rawCode || rawCode.length !== 5) {
-        throw new Error('أدخل كود الدخول المكون من 5 خانات.');
+        throw new Error('أدخل كود الدخول المكون من 5 أرقام.');
       }
 
       let payload = {
@@ -220,14 +186,11 @@
         deviceLabel: navigator.userAgent.slice(0, 60)
       };
 
-      // إذا لم يكن كود أدمن واضحاً نتحقق من بيانات الطالب
       if (rawCode !== '99999' && rawCode !== 'ADMIN') {
         const validated = validateStudentInput({
           code: rawCode,
           name: $('#studentName')?.value,
-          phone: $('#studentPhone')?.value,
-          grade: $('#studentGrade')?.value,
-          gender: genderSelect?.value || 'male'
+          phone: $('#studentPhone')?.value
         });
         payload = { ...payload, ...validated };
       }
@@ -244,7 +207,7 @@
 
       try { localStorage.setItem(SESSION_KEY, JSON.stringify(data.user)); } catch (_) {}
       openApp(data.user);
-      showToast(data.user.is_admin ? 'مرحباً بك في لوحة تحكم الأدمن!' : 'مرحباً بك! تم تسجيل الدخول بنجاح.');
+      showToast(data.user.is_admin ? 'مرحباً بك في لوحة تحكم الأدمن!' : 'تم تفعيل الكود والدخول بنجاح!');
     } catch (error) {
       setAuthMessage(error.message || 'حدث خطأ غير متوقع.');
     } finally {
@@ -274,7 +237,7 @@
     showToast('تم تسجيل الخروج.');
   });
 
-  // تحميل المنشورات من Supabase وتفعيل التحديث اللحظي Realtime
+  // تحميل المنشورات من Supabase وتفعيل التحديث اللحظي
   async function loadPosts() {
     if (!sb) return;
     const { data, error } = await sb
@@ -302,59 +265,58 @@
     const updatesTarget = $('#updatesGrid');
     if (!learningTarget || !updatesTarget) return;
 
-    // إزالة البطاقات الديناميكية السابقة قبل إعادة الرسم
-    $$('.dynamic-post-card').forEach(el => el.remove());
+    learningTarget.innerHTML = '';
+    updatesTarget.innerHTML = '';
 
     if (notifBadge) notifBadge.textContent = String(posts.length);
     if (notifStatusText) {
-      notifStatusText.textContent = posts.length ? `${posts.length} منشور مباشر` : 'لا توجد إشعارات جديدة';
+      notifStatusText.textContent = posts.length ? `${posts.length} منشور` : 'لا توجد إشعارات';
     }
     if (notificationsListContainer) {
       notificationsListContainer.innerHTML = posts.length
-        ? posts.slice(0, 5).map(p => `<p class="panel-footnote">• ${escapeHtml(p.title)} (${escapeHtml(p.section)})</p>`).join('')
-        : '<p class="panel-footnote">لا توجد أي إشعارات مضافة حالياً.</p>';
+        ? posts.slice(0, 6).map(p => `<p class="panel-footnote">• ${escapeHtml(p.title)}</p>`).join('')
+        : '<p class="panel-footnote">لا توجد إشعارات حالياً.</p>';
     }
 
     posts.forEach(post => {
       const card = document.createElement('article');
-      card.className = 'update-card reveal is-visible searchable-item dynamic-post-card';
+      card.className = 'update-card searchable-item';
       card.dataset.title = post.title || '';
 
       let mediaHtml = '';
       if (post.media_type === 'image' && post.media_url) {
         mediaHtml = `
-          <div class="update-art art-news" style="padding:0;height:180px;position:relative;overflow:hidden;">
-            <img src="${escapeAttr(post.media_url)}" alt="${escapeAttr(post.title)}" class="zoomable-image" style="width:100%;height:100%;object-fit:cover;display:block;">
-            <button type="button" class="view-image-btn haptic-btn" data-img="${escapeAttr(post.media_url)}">
+          <div class="update-art">
+            <img src="${escapeAttr(post.media_url)}" alt="${escapeAttr(post.title)}" class="zoomable-image" style="width:100%;height:100%;object-fit:cover;">
+            <button type="button" class="view-image-btn" data-img="${escapeAttr(post.media_url)}">
               <i class="fa-solid fa-expand"></i> عرض وتنزيل
             </button>
           </div>`;
       } else if (post.media_type === 'video' && post.media_url) {
         mediaHtml = `
-          <div class="update-art art-video" style="padding:0;height:190px;position:relative;background:#000;overflow:hidden;">
+          <div class="update-art" style="background:#000;">
             <video src="${escapeAttr(post.media_url)}" controls playsinline style="width:100%;height:100%;object-fit:cover;"></video>
           </div>`;
       } else if (post.media_type === 'audio' && post.media_url) {
         mediaHtml = `
-          <div class="update-art art-tips" style="height:auto;padding:18px;">
-            <i class="fa-solid fa-microphone-lines"></i>
-            <audio src="${escapeAttr(post.media_url)}" controls style="width:100%;margin-top:8px;"></audio>
+          <div class="update-art" style="padding:16px;">
+            <audio src="${escapeAttr(post.media_url)}" controls style="width:100%;"></audio>
           </div>`;
       } else {
         mediaHtml = `
-          <div class="update-art art-tips">
-            <i class="fa-solid fa-bullhorn"></i><span>PLATFORM POST</span>
+          <div class="update-art">
+            <i class="fa-solid fa-bullhorn" style="font-size:2rem;color:var(--primary);"></i>
           </div>`;
       }
 
       const deleteBtnHtml = currentSession?.is_admin
-        ? `<button type="button" class="del-mini-btn" data-del-post="${escapeAttr(post.id)}"><i class="fa-solid fa-trash"></i> حذف</button>`
-        : `<span>${escapeHtml(post.section || '')}</span>`;
+        ? `<button type="button" class="del-mini-btn danger" data-del-post="${escapeAttr(post.id)}"><i class="fa-solid fa-trash"></i> حذف</button>`
+        : `<span>${escapeHtml(post.created_by || 'الإدارة')}</span>`;
 
       card.innerHTML = `
         ${mediaHtml}
         <div class="update-body">
-          <span class="update-tag">${escapeHtml(post.tag || post.section || 'منشور')}</span>
+          <span class="update-tag">${escapeHtml(post.tag || 'منشور')}</span>
           <h3>${escapeHtml(post.title)}</h3>
           <p>${escapeHtml(post.description || '')}</p>
           <div class="update-meta">
@@ -363,17 +325,17 @@
           </div>
         </div>`;
 
-      if (post.section === 'updates' || post.section === 'video') {
-        updatesTarget.prepend(card);
+      if (post.section === 'tips') {
+        learningTarget.appendChild(card);
       } else {
-        learningTarget.prepend(card);
+        updatesTarget.appendChild(card);
       }
     });
 
     $$('[data-del-post]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const postId = btn.dataset.delPost;
-        if (!confirm('حذف هذا المنشور من المنصة؟')) return;
+        if (!confirm('حذف هذا المنشور نهائياً؟')) return;
         const res = await fetch('/api/media', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -382,13 +344,15 @@
         if (res.ok) {
           showToast('تم حذف المنشور.');
           loadPosts();
+        } else {
+          showToast('تعذر حذف المنشور.');
         }
       });
     });
   }
 
-  // رفع الوسائط من لوحة الأدمن إلى Supabase Storage ثم حفظ المنشور
-  adminUploadForm?.addEventListener('submit', async (e) => {
+  // نشر الوسائط من لوحة الأدمن
+  adminUploadForm?.addEventListener('submit', async e => {
     e.preventDefault();
     if (!currentSession?.is_admin) return;
 
@@ -409,7 +373,7 @@
         const safeName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
         const filePath = `${section}/${safeName}`;
         const { error: upErr } = await sb.storage.from(STORAGE_BUCKET).upload(filePath, file, { upsert: false });
-        if (upErr) throw new Error('فشل رفع الملف على Storage: ' + upErr.message);
+        if (upErr) throw new Error('فشل رفع الملف: ' + upErr.message);
 
         const { data: pubData } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(filePath);
         mediaUrl = pubData?.publicUrl || '';
@@ -422,7 +386,7 @@
           action: 'create',
           adminCode: currentSession.access_code,
           section,
-          tag: section === 'video' ? 'الفيديوهات' : section === 'tips' ? 'نصيحة' : 'الأخبار',
+          tag: section === 'video' ? 'فيديو' : section === 'tips' ? 'ملخص' : 'تحديث',
           title,
           description,
           media_type: mediaType,
@@ -434,60 +398,89 @@
       if (!res.ok || !out.ok) throw new Error(out.message || 'تعذر حفظ المنشور.');
 
       adminUploadForm.reset();
-      showToast('تم النشر وظهور الوسائط للجميع فوراً!');
+      showToast('تم النشر بنجاح للجميع!');
       loadPosts();
     } catch (err) {
-      showToast(err.message || 'حدث خطأ أثناء الرفع.');
+      showToast(err.message || 'حدث خطأ أثناء النشر.');
     } finally {
       adminUploadBtn.disabled = false;
       adminUploadBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i><span>نشر الآن للجميع</span>';
     }
   });
 
-  // توليد 500 كود وتصدير CSV
-  let lastGeneratedCodes = [];
-
-  generate500Btn?.addEventListener('click', async () => {
+  // تأكيد وحفظ الـ 500 كود في قاعدة البيانات
+  sync500Btn?.addEventListener('click', async () => {
     if (!currentSession?.is_admin) return;
-    generate500Btn.disabled = true;
+    sync500Btn.disabled = true;
     try {
       const res = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'generate500', adminCode: currentSession.access_code })
+        body: JSON.stringify({ action: 'sync500', adminCode: currentSession.access_code })
       });
       const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.message || 'فشل توليد الأكواد.');
-      lastGeneratedCodes = data.codes || [];
-      if (adminCodesStats) {
-        adminCodesStats.textContent = `تم توليد ${lastGeneratedCodes.length} كود جديد بنجاح! اضغط تصدير CSV لتحميلهم.`;
-      }
-      showToast(`تم توليد ${lastGeneratedCodes.length} كود دخول.`);
+      if (!res.ok || !data.ok) throw new Error(data.message || 'تعذر مزامنة الأكواد.');
+      showToast('تم تأكيد وحفظ الـ 500 كود في المنصة بنجاح!');
       loadAdminStudents();
     } catch (err) {
       showToast(err.message);
     } finally {
-      generate500Btn.disabled = false;
+      sync500Btn.disabled = false;
     }
   });
 
-  exportCsvBtn?.addEventListener('click', () => {
-    const list = lastGeneratedCodes.length ? lastGeneratedCodes : [];
-    if (!list.length) {
-      return showToast('ولّد الأكواد أولاً ثم صدّر ملف CSV.');
-    }
-    const csvContent = 'data:text/csv;charset=utf-8,' + ['code'].concat(list).join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'tareekh-alroqi-500-codes.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    showToast('تم تصدير ملف CSV.');
+  // طباعة الـ 500 كود في صفحة منسقة جاهزة للحفظ PDF
+  printPdfBtn?.addEventListener('click', () => {
+    const codes = allAdminStudents.length
+      ? allAdminStudents.map(s => ({
+          code: s.access_code,
+          burned: Boolean(s.full_name || (Array.isArray(s.devices) && s.devices.length > 0))
+        }))
+      : PRE_SAVED_500_CODES.map(c => ({ code: c, burned: false }));
+
+    const win = window.open('', '_blank');
+    if (!win) return showToast('اسمح بفتح النوافذ المنبثقة للطباعة.');
+
+    const itemsHtml = codes
+      .map(
+        (item, idx) => `
+        <div class="code-box ${item.burned ? 'burned' : ''}">
+          <small>#${idx + 1}</small>
+          <strong>${item.code}</strong>
+          <span>${item.burned ? 'محروق / مستخدم' : 'متاح للتفعيل'}</span>
+        </div>`
+      )
+      .join('');
+
+    win.document.write(`
+      <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="UTF-8" />
+        <title>أكواد منصة تاريخ الرقي (500 كود)</title>
+        <style>
+          body { font-family: Tahoma, Arial, sans-serif; padding: 20px; color: #111; }
+          h1 { text-align: center; margin-bottom: 6px; }
+          p { text-align: center; color: #555; margin-bottom: 20px; }
+          .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+          .code-box { border: 1.5px solid #222; border-radius: 8px; padding: 10px; text-align: center; page-break-inside: avoid; }
+          .code-box.burned { background: #fee2e2; border-color: #b91c1c; }
+          .code-box small { display: block; color: #666; font-size: 11px; }
+          .code-box strong { display: block; font-size: 20px; letter-spacing: 2px; margin: 4px 0; }
+          .code-box span { font-size: 11px; color: #333; }
+        </style>
+      </head>
+      <body>
+        <h1>منصة تاريخ الرُّقي — أ. محمد الجداوي</h1>
+        <p>قائمة أكواد الدخول المعتمدة (500 كود) — اختر Save as PDF لحفظ الملف</p>
+        <div class="grid">${itemsHtml}</div>
+        <script>window.onload = () => window.print();<\/script>
+      </body>
+      </html>
+    `);
+    win.document.close();
   });
 
-  // عرض جدول الطلاب والهواتف وحالة الاتصال
+  // تحميل بيانات الأكواد والطلاب للأدمن
   async function loadAdminStudents() {
     if (!currentSession?.is_admin || !adminStudentsTbody) return;
     try {
@@ -499,122 +492,114 @@
       const data = await res.json();
       if (!res.ok || !data.ok) return;
 
-      const students = (data.students || []).filter(s => !s.is_admin);
-      if (!students.length) {
-        adminStudentsTbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);">لا يوجد طلاب مسجلون بعد.</td></tr>';
-        return;
-      }
-
-      adminStudentsTbody.innerHTML = students.map(s => {
-        const devicesCount = Array.isArray(s.devices) ? s.devices.length : 0;
-        const lastSeenStr = s.last_seen ? new Date(s.last_seen).toLocaleString('ar-EG') : '—';
-        const statusHtml = s.is_online
-          ? '<span class="status-badge-on">● متصل الآن</span>'
-          : '<span class="status-badge-off">○ غير متصل</span>';
-        const toggleLabel = s.is_active === false ? 'تفعيل' : 'إيقاف';
-        return `
-          <tr>
-            <td><strong>${escapeHtml(s.access_code)}</strong></td>
-            <td>${escapeHtml(s.full_name || 'لم يسجل بعد')}</td>
-            <td>${escapeHtml(s.phone || '—')}</td>
-            <td>${escapeHtml(s.grade || '—')}</td>
-            <td>${statusHtml}</td>
-            <td>${escapeHtml(lastSeenStr)}</td>
-            <td>${devicesCount} هاتف</td>
-            <td>
-              <button type="button" class="del-mini-btn" data-toggle-code="${escapeAttr(s.access_code)}">${toggleLabel}</button>
-            </td>
-          </tr>`;
-      }).join('');
-
-      $$('[data-toggle-code]').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const code = btn.dataset.toggleCode;
-          await fetch('/api/admin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'toggleCode', adminCode: currentSession.access_code, targetCode: code })
-          });
-          showToast('تم تحديث حالة الكود.');
-          loadAdminStudents();
-        });
-      });
+      allAdminStudents = (data.students || []).filter(s => !s.is_admin);
+      renderAdminTable();
     } catch (_) {}
   }
 
-  function escapeHtml(str) {
-    return String(str || '').replace(/[&<>"']/g, m => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[m]));
-  }
-  function escapeAttr(str) {
-    return escapeHtml(str);
-  }
+  function renderAdminTable() {
+    if (!adminStudentsTbody) return;
 
-  // مشغل الفيديو الأساسي
-  if (platformVideo) {
-    const formatTime = s => `${Math.floor(s / 60)}:${Math.floor(s % 60) < 10 ? '0' : ''}${Math.floor(s % 60)}`;
-    const togglePlay = () => {
-      if (platformVideo.paused) {
-        platformVideo.play().then(() => { if (vidPlayIcon) vidPlayIcon.className = 'fa-solid fa-pause'; }).catch(() => {});
-      } else {
-        platformVideo.pause();
-        if (vidPlayIcon) vidPlayIcon.className = 'fa-solid fa-play';
-      }
-    };
-    vidPlayPauseBtn?.addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
-    platformVideo.addEventListener('click', togglePlay);
-    platformVideo.addEventListener('timeupdate', () => {
-      if (!platformVideo.duration) return;
-      if (vidProgressBar) vidProgressBar.style.width = `${(platformVideo.currentTime / platformVideo.duration) * 100}%`;
-      if (vidTimeDisplay) vidTimeDisplay.textContent = `${formatTime(platformVideo.currentTime)} / ${formatTime(platformVideo.duration)}`;
-    });
-    vidProgressContainer?.addEventListener('click', e => {
-      const rect = vidProgressContainer.getBoundingClientRect();
-      if (platformVideo.duration) platformVideo.currentTime = ((e.clientX - rect.left) / rect.width) * platformVideo.duration;
-    });
-    vidMuteBtn?.addEventListener('click', e => {
-      e.stopPropagation();
-      platformVideo.muted = !platformVideo.muted;
-      if (vidMuteIcon) vidMuteIcon.className = platformVideo.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
-      if (vidVolumeSlider) vidVolumeSlider.value = platformVideo.muted ? 0 : platformVideo.volume;
-    });
-    vidVolumeSlider?.addEventListener('input', e => {
-      e.stopPropagation();
-      const val = parseFloat(e.target.value);
-      platformVideo.volume = val;
-      platformVideo.muted = val === 0;
-      if (vidMuteIcon) vidMuteIcon.className = val === 0 ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
-    });
-    vidFullscreenBtn?.addEventListener('click', e => {
-      e.stopPropagation();
-      const cardContainer = platformVideo.closest('.update-card');
-      if (!document.fullscreenElement) cardContainer?.requestFullscreen?.().catch(() => {});
-      else document.exitFullscreen?.();
-    });
-    platformVideo.addEventListener('ended', () => { if (vidPlayIcon) vidPlayIcon.className = 'fa-solid fa-play'; });
-  }
+    const burnedList = allAdminStudents.filter(
+      s => Boolean(s.full_name) || (Array.isArray(s.devices) && s.devices.length > 0)
+    );
+    const onlineList = allAdminStudents.filter(s => Boolean(s.is_online));
 
-  function setupFavorites() {
-    let savedFavs = [];
-    try { savedFavs = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'); } catch (_) {}
-    $$('.favorite-btn, .favorite-btn-absolute').forEach(btn => {
-      const card = btn.closest('.feature-card, .update-card');
-      const title = card?.dataset?.title || card?.querySelector('h3')?.textContent || 'عنصر';
-      if (savedFavs.includes(title)) {
-        btn.classList.add('is-favorite');
-        const icon = btn.querySelector('i');
-        if (icon) icon.className = 'fa-solid fa-bookmark';
+    $('#kpiTotalCodes').textContent = String(allAdminStudents.length || 500);
+    $('#kpiBurnedCodes').textContent = String(burnedList.length);
+    $('#kpiAvailableCodes').textContent = String(Math.max((allAdminStudents.length || 500) - burnedList.length, 0));
+    $('#kpiOnlineNow').textContent = String(onlineList.length);
+
+    const searchQ = (adminSearchInput?.value || '').trim().toLowerCase();
+    const filterVal = adminFilterSelect?.value || 'all';
+
+    const filtered = allAdminStudents.filter(s => {
+      const isBurned = Boolean(s.full_name) || (Array.isArray(s.devices) && s.devices.length > 0);
+      if (filterVal === 'burned' && !isBurned) return false;
+      if (filterVal === 'unused' && isBurned) return false;
+      if (filterVal === 'online' && !s.is_online) return false;
+
+      if (searchQ) {
+        const hay = `${s.access_code || ''} ${s.full_name || ''} ${s.phone || ''}`.toLowerCase();
+        if (!hay.includes(searchQ)) return false;
       }
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const isFav = btn.classList.toggle('is-favorite');
-        const icon = btn.querySelector('i');
-        if (icon) icon.className = isFav ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
-        showToast(isFav ? `تم الحفظ: "${title}"` : 'تمت الإزالة من المحفوظات');
+      return true;
+    });
+
+    if (!filtered.length) {
+      adminStudentsTbody.innerHTML = '<tr><td colspan="8" class="empty-cell">لا توجد نتائج مطابقة.</td></tr>';
+      return;
+    }
+
+    adminStudentsTbody.innerHTML = filtered
+      .map(s => {
+        const devicesList = Array.isArray(s.devices) ? s.devices : [];
+        const isBurned = Boolean(s.full_name) || devicesList.length > 0;
+        const codeStateBadge = isBurned
+          ? '<span class="badge-burned">🔥 محروق</span>'
+          : '<span class="badge-unused">✅ متاح</span>';
+
+        const devicesInfo = devicesList.length
+          ? `${devicesList.length} جهاز (${devicesList.map(d => escapeHtml(typeof d === 'string' ? d : d.label || d.id)).join(' | ')})`
+          : '—';
+
+        const lastSeenStr = s.last_seen ? new Date(s.last_seen).toLocaleString('ar-EG') : '—';
+        const statusHtml = s.is_online
+          ? '<span class="status-badge-on">● متصل</span>'
+          : '<span class="status-badge-off">○ غير متصل</span>';
+        const toggleLabel = s.is_active === false ? 'تفعيل' : 'إيقاف';
+
+        return `
+          <tr>
+            <td><strong>${escapeHtml(s.access_code)}</strong></td>
+            <td>${codeStateBadge}</td>
+            <td>${escapeHtml(s.full_name || 'لم يُستخدم بعد')}</td>
+            <td>${escapeHtml(s.phone || '—')}</td>
+            <td>${statusHtml}</td>
+            <td>${escapeHtml(lastSeenStr)}</td>
+            <td style="font-size:12px;">${devicesInfo}</td>
+            <td style="display:flex;gap:6px;">
+              <button type="button" class="del-mini-btn" data-toggle-code="${escapeAttr(s.access_code)}">${toggleLabel}</button>
+              <button type="button" class="del-mini-btn danger" data-delete-code="${escapeAttr(s.access_code)}">حذف العضوية</button>
+            </td>
+          </tr>`;
+      })
+      .join('');
+
+    $$('[data-toggle-code]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const code = btn.dataset.toggleCode;
+        await fetch('/api/admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'toggleCode', adminCode: currentSession.access_code, targetCode: code })
+        });
+        showToast('تم تحديث حالة الكود.');
+        loadAdminStudents();
+      });
+    });
+
+    $$('[data-delete-code]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const code = btn.dataset.deleteCode;
+        if (!confirm(`هل تريد حذف عضوية الكود ${code} نهائياً؟`)) return;
+        const delRes = await fetch('/api/admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'deleteCode', adminCode: currentSession.access_code, targetCode: code })
+        });
+        if (delRes.ok) {
+          showToast(`تم حذف العضوية (${code}) نهائياً.`);
+          loadAdminStudents();
+        } else {
+          showToast('فشل حذف العضوية.');
+        }
       });
     });
   }
+
+  adminSearchInput?.addEventListener('input', renderAdminTable);
+  adminFilterSelect?.addEventListener('change', renderAdminTable);
 
   function setupSearch() {
     $$('.section-search-input').forEach(input => {
@@ -630,49 +615,50 @@
     });
   }
 
+  function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, m => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[m]));
+  }
+  function escapeAttr(str) {
+    return escapeHtml(str);
+  }
+
   function initParticles() {
     if (!particlesCanvas) return;
     const ctx = particlesCanvas.getContext('2d');
-    let width = particlesCanvas.width = window.innerWidth;
-    let height = particlesCanvas.height = window.innerHeight;
+    let width = (particlesCanvas.width = window.innerWidth);
+    let height = (particlesCanvas.height = window.innerHeight);
     window.addEventListener('resize', () => {
       width = particlesCanvas.width = window.innerWidth;
       height = particlesCanvas.height = window.innerHeight;
     });
-    const particles = Array.from({ length: 20 }, () => ({
-      x: Math.random() * width, y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
+    const particles = Array.from({ length: 18 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
       radius: Math.random() * 2 + 1
     }));
     function animate() {
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = document.body.classList.contains('theme-female') ? 'rgba(241,124,181,0.22)' : 'rgba(108,168,255,0.2)';
+      ctx.fillStyle = 'rgba(59, 130, 246, 0.2)';
       particles.forEach(p => {
-        p.x += p.vx; p.y += p.vy;
+        p.x += p.vx;
+        p.y += p.vy;
         if (p.x < 0 || p.x > width) p.vx *= -1;
         if (p.y < 0 || p.y > height) p.vy *= -1;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
       });
       requestAnimationFrame(animate);
     }
     animate();
-  }
-
-  function setupReveal() {
-    const elements = $$('.reveal');
-    if (!('IntersectionObserver' in window)) {
-      elements.forEach(el => el.classList.add('is-visible'));
-      return;
-    }
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-    elements.forEach(el => observer.observe(el));
   }
 
   document.addEventListener('click', event => {
@@ -682,7 +668,7 @@
       currentRotation = 0;
       if (activeImgSrc && modalImage && imageModal) {
         modalImage.src = activeImgSrc;
-        modalImage.style.transform = `rotate(0deg)`;
+        modalImage.style.transform = 'rotate(0deg)';
         imageModal.classList.remove('hidden');
       }
     }
@@ -698,27 +684,12 @@
     const a = document.createElement('a');
     a.href = activeImgSrc;
     a.download = 'tareekh-alroqi-image.jpg';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   });
 
-  fullscreenImgBtn?.addEventListener('click', () => {
-    if (!modalImgContainerBox) return;
-    if (!document.fullscreenElement) modalImgContainerBox.requestFullscreen?.().catch(() => {});
-    else document.exitFullscreen?.();
-  });
-
-  qualityBtns.forEach(qBtn => {
-    qBtn.addEventListener('click', () => {
-      qualityBtns.forEach(b => b.classList.remove('active'));
-      qBtn.classList.add('active');
-      const q = qBtn.dataset.quality;
-      if (modalImage) {
-        modalImage.style.filter = q === '4k' ? 'contrast(1.1) saturate(1.15)' : q === 'hd' ? 'contrast(1.05) saturate(1.08)' : 'none';
-      }
-    });
-  });
-
-  const closeImageModal = () => { if (imageModal) imageModal.classList.add('hidden'); };
+  const closeImageModal = () => imageModal?.classList.add('hidden');
   closeModalBtn?.addEventListener('click', closeImageModal);
   imageModal?.addEventListener('click', event => {
     if (event.target === imageModal || event.target.classList.contains('image-modal-backdrop')) closeImageModal();
@@ -747,7 +718,6 @@
   if (yearElement) yearElement.textContent = new Date().getFullYear();
 
   initParticles();
-  setupReveal();
 
   try {
     const savedSession = localStorage.getItem(SESSION_KEY);
